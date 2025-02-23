@@ -1,0 +1,629 @@
+ <%- include('./partials/header.ejs') %>
+<script src="/script/dateConverter.js"></script>
+<div class="right-bar">
+  <h2 class="custom-heading custom-card">Group Profile</h2>
+  <div class="custom-card">
+    <% if(groupDetails && groupDetails.success){%>
+    <div class="user-name">
+      <img src="<%=groupDetails.data.avatar %>" alt="img" />
+      <span><%= groupDetails.data.name %></span>
+    </div>
+    <%}%>
+    <div class="user-profile-deatils">
+      <div class="edit-profile-fields">
+        <% if(groupDetails && groupDetails.success){%>
+        <div class="edit-profile-fields-heading">
+          <h3>Details</h3>
+          <a
+            href="/group-edit?id=<%= groupDetails.data._id %>"
+            class="edit-button"
+            >Edit</a
+          >
+        </div>
+        <div class="row custom-form">
+          <div class="col-md-6">
+            <ul class="commom_form_edit">
+              <li>
+                <span class="custom-form-title">Name</span>
+                <span class="custom-form-desc"
+                  ><%= groupDetails.data.name %></span
+                >
+              </li>
+              <li>
+                <span class="custom-form-title">Group ID</span>
+                <span class="custom-form-desc"
+                  ><%= groupDetails.data._id %></span
+                >
+              </li>
+              <li>
+                <span class="custom-form-title">Type</span>
+                <span class="custom-form-desc"
+                  ><%= groupDetails.data.type == 0 ? "Private" :
+                  groupDetails.data.type == 1 ? "Public" :"Passowrd Protected"
+                  %></span
+                >
+              </li>
+              <li>
+                <span class="custom-form-title">Members</span>
+                <span class="custom-form-desc"
+                  ><%= groupDetails.data.totalMembers %></span
+                >
+              </li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <ul class="commom_form_edit">
+              <li>
+                <span class="custom-form-title">Description</span>
+                <span class="custom-form-desc">
+                  <%= groupDetails.data.description || "none" %>
+                </span>
+              </li>
+              <li>
+                <span class="custom-form-title">Link</span>
+                <span class="custom-form-desc">
+                  <%= groupDetails.data.link || "none" %>
+                </span>
+              </li>
+              <li>
+                <span class="custom-form-title">Metadata</span>
+                <span class="custom-form-desc"
+                  ><%= groupDetails.data.metadata || "none" %></span
+                >
+              </li>
+              <li>
+                <span class="custom-form-title">Created</span>
+                <span class="custom-form-desc">
+                  <%= groupDetails.data.createdAt %></span
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+        <%}%>
+      </div>
+      <div class="user-profile-deatils groups-profile-deatils">
+        <ul class="nav nav-pills" id="pills-tab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link active"
+              id="active-members"
+              data-bs-toggle="pill"
+              data-bs-target="#pills-home"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              onclick="activeMembers(1)"
+            >
+              Members
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="inactive-members"
+              data-bs-toggle="pill"
+              data-bs-target="#pills-profile"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              tabindex="-1"
+              onclick="bannedMebers(1)"
+            >
+              Banned members
+            </button>
+          </li>
+        </ul>
+        <div
+          class="tab-content user-profile-deatils-inner"
+          id="pills-tabContent"
+        >
+          <div
+            class="tab-pane fade show active"
+            id="pills-home"
+            role="tabpanel"
+            aria-labelledby="#active-members"
+          >
+            <div class="section-header">
+              <a
+                href="javascript:void(0)"
+                data-bs-toggle="modal"
+                class="add_import"
+                onclick="addUser()"
+                ><i class="fi fi-rs-plus"></i
+              ></a>
+              <div class="custom-form-section section-header-form">
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Search"
+                  name="search"
+                  id="searchInput"
+                  oninput="search()"
+                />
+                <i class="fi fi-rs-search"></i>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-striped" id="activeTable"></table>
+              <div id="loader" class="loader-overlay loader-main">
+                <div class="loader">
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="tab-pane fade"
+            id="pills-profile"
+            role="tabpanel"
+            aria-labelledby="#inactive-members"
+          >
+            <div class="section-header">
+              <div class="custom-form-section section-header-form">
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Search"
+                  name="search"
+                  id="inactiveSearchInput"
+                  oninput="search()"
+                />
+                <i class="fi fi-rs-search"></i>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-striped" id="inactiveTable"></table>
+              <div id="loader" class="loader-overlay loader-main">
+                <div class="loader">
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav class="paginaton-section">
+        <ul class="pagination" id="activePagination"></ul>
+      </nav>
+      <nav class="paginaton-section">
+        <ul class="pagination" id="inactivePagination"></ul>
+      </nav>
+    </div>
+  </div>
+</div>
+<%- include('./partials/footer.ejs') %>
+
+<!-- Delete Modal -->
+<div
+  class="modal fade delete-modal"
+  id="deleteModel"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="delete-content">
+        <img src="images/remove.png" alt="delete img" class="delete-img" />
+        <h3>Are you sure?</h3>
+        <p>
+          Do you want really want do delete this data <br />
+          this file cannot be find
+        </p>
+        <div class="delete-content-btn">
+          <button
+            type="button"
+            class="btn btn-danger"
+            id="confirmDeleteUser"
+            onclick=""
+          >
+            Delete
+          </button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Deactivate Modal -->
+<div
+  class="modal fade delete-modal"
+  id="deactivateModal"
+  tabindex="-1"
+  aria-labelledby="deactivateModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="delete-content">
+        <img src="images/remove.png" alt="delete img" class="delete-img" />
+        <h3>Are you sure?</h3>
+        <p>Do you want really want do deactivate this user</p>
+        <div class="delete-content-btn">
+          <button
+            type="button"
+            class="btn btn-danger"
+            id="confirmDeactiveUser"
+            onclick=""
+          >
+            Deactivate
+          </button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Activate Modal -->
+<div
+  class="modal fade delete-modal"
+  id="activateModal"
+  tabindex="-1"
+  aria-labelledby="activateModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="delete-content">
+        <img src="images/remove.png" alt="delete img" class="delete-img" />
+        <h3>Are you sure?</h3>
+        <p>Do you want really want do activate this user</p>
+        <div class="delete-content-btn">
+          <button
+            type="button"
+            class="btn btn-success"
+            id="confirmActivateUser"
+            onclick=""
+          >
+            Activate
+          </button>
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add User Modal -->
+<div
+  class="modal fade"
+  id="addUserModal"
+  tabindex="-1"
+  aria-labelledby="addUserModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="custom-card">
+        <div class="custom-card-info">
+          <h4>Add User</h4>
+          <!-- <p>fact, inserting any fantasy text or a famous text, be it a poem, a speech, a literary passage, a song's text, etc.</p> -->
+        </div>
+        <div class="row custom-form-section">
+          <div class="col-md-12">
+            <form class="form">
+              <div class="form-group">
+                <input
+                  type="hidden"
+                  id="addusergroupId"
+                  name="group"
+                  value=""
+                />
+                <label for="adduser">Select User to add into group.</label>
+                <select
+                  class="formmultiselect"
+                  name="users"
+                  multiple="multiple"
+                  id="adduser"
+                ></select>
+              </div>
+              <button id="saveButton" class="btn btn-primary">Save</button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/script/group.js"></script>
+
+<script>
+  const group = "<%=groupDetails.data._id%>"
+  function deactivateButton(id) {
+    $("#confirmDeactiveUser").attr("onClick", `deactivateUser('${id}')`);
+    $("#deactivateModal").modal("show");
+  }
+
+  function deactivateUser(id) {
+    $("#deactivateModal").modal("hide");
+    updateGroupUserStatus(group, 0, getDataTable, id);
+  }
+
+  function deleteButton(id) {
+    $("#confirmDeleteUser").attr("onClick", `deleteUser('${id}')`);
+    $("#deleteModel").modal("show");
+  }
+
+  function deleteUser(id) {
+    $("#deleteModel").modal("hide");
+    updateGroupUserStatus(group, 2, getDataTable, id);
+  }
+
+  function activateButton(id) {
+    $("#confirmActivateUser").attr("onClick", `activateUser('${id}')`);
+    $("#activateModal").modal("show");
+  }
+
+  function activateUser(id) {
+    $("#activateModal").modal("hide");
+    updateGroupUserStatus(group, 1, getDataTable, id);
+  }
+</script>
+
+<script>
+  $(document).ready(function () {
+    $(".formmultiselect").select2();
+  });
+</script>
+
+<% if(groupDetails && groupDetails.success){%>
+<script>
+  $(document).ready(() => {
+    getDataTable();
+  });
+
+  let page = 1;
+  const pageSize = 10;
+  let status = 1;
+
+  function getDataTable(pageno) {
+    $(".loader-main").css("display", "flex")
+    return new Promise((res, rej) => {
+      page = +pageno || page;
+      $.ajax({
+        type: "GET",
+        url: `/get-group-user-list?group=<%=groupDetails.data._id%>&page=${
+          page - 1
+        }&limit=${pageSize}&status=${status}`,
+        success: (response) => {
+          handleGroupUserList(response);
+          res();
+          $(".loader-main").css("display", "none")
+        },
+        error: (error) => {
+          rej();
+          $(".loader-main").css("display", "none")
+        },
+      });
+    });
+  }
+
+  function getGroupUserTableContent(users, pageno, pageSize) {
+    let tableContent = `<thead>
+    <tr>
+      <th>Sr.</th>
+      <th>Name</th>
+      <th>UID</th>
+      <th class="text-center">Role</th>
+      <th>Added</th>
+      <th>Action</th>
+    </tr>
+  </thead><tbody>`;
+    for (let user = 0; user < users.length; user++) {
+      const data = users[user];
+      const content = `<tr>
+        <td>${(pageno - 1) * pageSize + (user + 1)}</td>
+        <td>
+          <img src=${data.user.avatar} alt="img_user" class="tabel-user-img"/>
+          <a href="/user-profile?id=${
+            data.user._id
+          }" data-bs-toggle="tooltip" data-bs-placement="top"
+              data-bs-title="Edit"> ${data.user.name}</i></a>
+        </td>
+        <td>${data.user.uid}</td>
+        <td class="text-center">${
+          data.role == 1
+            ? "Superadmin"
+            : data.role == 2
+            ? "Moderators"
+            : "Public"
+        }</td>
+        <td>${dateConverter(data.createdAt)}</td>
+        <td>
+        <div class="action-button"> ${`<a href="/user-profile?id=${data.user._id}" class="delete-btn">
+                <i class="fi fi-rs-eye"></i>
+              <span class="tooltiptext">View</span>
+            </a>`} 
+         ${
+           data.status == 1
+             ? data.role == 3 ? `<a  href="javascript:void(0)" data-bs-toggle="tooltip" class="delete-btn" data-bs-placement="top" data-bs-title="deactivateModal" onClick="deactivateButton(this.id)" id="${data.user._id}"><i class="fi fi-rs-ban"> <span class="tooltiptext">Ban Member</span></i></a>`:
+             `<a  href="javascript:void(0)" data-bs-toggle="tooltip" class="delete-btn disabled" data-bs-placement="top" data-bs-title="deactivateModal" id="${data.user._id}"><i class="fi fi-rs-ban"> <span class="tooltiptext">Ban Member</span></i></a>`
+             : `<a  href="javascript:void(0)" class="delete-btn" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Activate" onClick="activateButton(this.id)" id="${data.user._id}"><i class="fi fi-rs-check"></i> <span class="tooltiptext">Activate User</span></a>`
+         } </div>
+        </td>
+      </tr>`;
+      tableContent += content;
+    }
+    tableContent += `</tbody>`;
+    return tableContent;
+  }
+
+  async function handleGroupUserList(response) {
+    if (response.success) {
+      if (page > 1 && response.data.count && !response.data.users.length) {
+        page--;
+        await getDataTable(page);
+        return;
+      }
+      if (!response.data.count) {
+        if (status == 1) {
+          const content = `<div class="alert alert-warning text-center" role="alert" style="margin:15px;">
+          This Group has not joined any active user yet.
+        </div>`;
+          $("#activeTable").html(content);
+        } else if (status == 0) {
+          const content = `<div class="alert alert-warning text-center" role="alert" style="margin:15px;">
+          This Group has not any Banned user yet.
+        </div>`;
+          $("#inactiveTable").html(content);
+        }
+        return;
+      }
+      const paginationContent = getPaginationContent(
+        response.data.count,
+        pageSize,
+        page
+      );
+      let tableContent = getGroupUserTableContent(
+        response.data.users,
+        page,
+        pageSize
+      );
+      if (status == 1) {
+        $("#activeTable").html(tableContent);
+        $("#activePagination").html(paginationContent);
+      } else if (status == 0) {
+        $("#inactiveTable").html(tableContent);
+        $("#inactivePagination").html(paginationContent);
+      }
+      // if (response.data.count <= 1) {
+      //   $("#NextButtonList").addClass("disabled");
+      // }
+    }
+  }
+
+  function activeMembers(pageno) {
+    window.location.hash = "active-members";
+    status = 1;
+    page = +pageno;
+    $("#inactiveTable tbody").empty();
+    $("#inactivePagination").empty();
+    getDataTable(page);
+  }
+
+  function bannedMebers(pageno) {
+    window.location.hash = "inactive-members";
+    status = 0;
+    page = +pageno || page;
+    $("#activeMembers tbody").empty();
+    $("#activePagination").empty();
+    getDataTable(page);
+  }
+
+  function search() {
+    return new Promise((res, rej) => {
+      let value;
+      if (status == 0) {
+        value = $("#inactiveSearchInput").val();
+      } else value = $("#searchInput").val();
+      const key = "name";
+      if (!value) {
+        getDataTable();
+        return;
+      }
+      $(".loader-main").css("display", "flex")
+      $.ajax({
+        type: "GET",
+        url: `/group-user-search?group=<%=groupDetails.data._id%>&key=${key}&value=${value}&status=${status}&page=${
+          page - 1
+        }&limit=${pageSize}`,
+        success: (response) => {
+          handleGroupUserList(response);
+          res();
+          $(".loader-main").css("display", "none")
+        },
+        error: (error) => {
+          rej();
+          $(".loader-main").css("display", "none")
+        },
+      });
+    });
+  }
+
+  function addUser() {
+    return new Promise((res, rej) => {
+      $.ajax({
+        type: "GET",
+        url: `/get-add-group-user?group=<%=groupDetails.data._id%>`,
+        success: (response) => {
+          handleAddUserList(response);
+          res();
+        },
+        error: (error) => {
+          rej();
+        },
+      });
+    });
+  }
+
+  function handleAddUserList(response) {
+    if (response.success) {
+      const { data } = response;
+      let options = "";
+      for (let i = 0; i < data.length; i++) {
+        options += `<option value=${data[i]._id}>${data[i].name}</option>`;
+      }
+      $("#adduser").html(options);
+      $("#addusergroupId").attr("value", "<%=groupDetails.data._id%>");
+      $("#addUserModal").modal("show");
+    }
+  }
+
+  $("#saveButton").click((e) => {
+    e.preventDefault();
+    const data = {
+      group: $("#addusergroupId").val(),
+      users: $("#adduser").val(),
+    };
+    $("#addUserModal").modal("hide");
+    $("#adduser").val(null).change();
+    $.ajax({
+      url: "/add-group-user",
+      method: "POST",
+      data: data,
+      success: (response) => {
+        toastNotification("success", response.message);
+        getDataTable();
+      },
+      error: (error) => {
+        toastNotification("danger", error.responseJSON.message);
+      },
+    });
+  });
+</script>
+<% } %>

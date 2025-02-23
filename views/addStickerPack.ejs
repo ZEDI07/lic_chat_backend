@@ -1,0 +1,120 @@
+<%- include('./partials/header.ejs') %>
+
+<div class="right-bar">
+  <h2 class="custom-heading custom-card">Add Sticker Pack</h2>
+  <div class="custom-card">
+    <div class="row custom-form-section">
+      <div class="col-lg-6 col-md-12">
+        <form class="form">
+          <div>
+            <div class="form-group">
+              <label for="name">Pack Name</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter pack name"
+                name="name"
+                id="name"
+                value=""
+              />
+            </div>
+          </div>
+          <div>
+            <div class="form-group">
+              <label for="description">Pack Description </label>
+              <textarea
+                class="form-control"
+                placeholder="Enter Pack Description"
+                name="description"
+                id="description"
+              ></textarea>
+            </div>
+          </div>
+          <div>
+            <div class="form-group">
+              <label for="category" id="category">Category</label>
+              <select
+                class="form-select form-control"
+                id="category"
+                name="category"
+              >
+                <% if(categories){%> <% for(let category of categories){ %>
+                <option value="<%=category._id %>"><%= category.name %></option>
+                <%} %> <%} %>
+              </select>
+              <small>Select Category of Pack</small>
+            </div>
+          </div>
+          <div>
+            <div class="form-group">
+              <input type="hidden" valud="" id="media" />
+              <label for="inputfile">Pack photo </label>
+              <input
+                type="file"
+                class="form-control"
+                placeholder="Select reaction to upload"
+                id="inputfile"
+                name="file"
+                value=""
+                accept="image/*"
+              />
+              <ul class="upload-files-progress" id="uploadimages">
+                <li id="uploadimages_default" style="display: none">
+                  <div
+                    class="alert alert-warning text-center"
+                    role="alert"
+                    style="margin: 15px"
+                  >
+                    Please select file to upload.
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <button id="savefile" class="btn btn-primary" disabled>Save</button>
+          <a href="/sticker#sticker-pack" class="btn btn-info">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('./partials/footer.ejs') %>
+
+<script src="/script/filemanager.js"></script>
+
+<script>
+  $("#savefile").click(async (e) => {
+    e.preventDefault();
+    $(".removefile").hide();
+    $("#savefile").prop("disabled", true);
+    const response = await uploadFile(files[0], "sticker", files[0].id);
+    if (!response.success) {
+      toastNotification("danger", "Error while uploading Image");
+      return;
+    }
+    const data = {
+      name: $('input[name="name"]').val(),
+      category: $('select[name="category"]').val(),
+      media: response.data._id,
+    };
+    const description = $('textarea[name="description"]').val();
+    description && (data.description = description);
+    $.ajax({
+      url: "/add-sticker-pack",
+      method: "POST",
+      data: data,
+      success: (response) => {
+        toastNotification("success", "Pack Added Successfully");
+        timeoutRedirect("/sticker#sticker-pack");
+      },
+      error: (error) => {
+        toastNotification(
+          "danger",
+          JSON.parse(error?.responseText)?.message || "Error !!"
+        );
+        $("#savefile").prop("disabled", false);
+      },
+    });
+  });
+</script>

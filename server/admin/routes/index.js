@@ -1,0 +1,35 @@
+import express from "express";
+import adminRoutes from "./admin.js";
+import credentailsRoutes from "./apiCredentails.js";
+import fileManager from "./fileManager.js";
+import formRoutes from "./form.js";
+import friendRoutes from "./friend.js";
+import generalSetting from "./generalSetting.js";
+import groupRoutes from "./group.js";
+import language from "./language.js";
+import messageRoutes from "./message.js";
+import reaction from "./reaction.js";
+import roleRoutes from "./role.js";
+import sticker from "./sticker.js";
+import storageSetting from "./storage.js";
+import userRoutes from "./user.js";
+import wallpaper from "./wallpaper.js";
+const app = express();
+
+app.use(adminRoutes);
+app.use(userRoutes);
+app.use(groupRoutes);
+app.use(messageRoutes);
+app.use(formRoutes);
+app.use(roleRoutes);
+app.use(friendRoutes);
+app.use(fileManager);
+app.use(storageSetting);
+app.use(reaction);
+app.use(sticker);
+app.use(wallpaper);
+app.use(language);
+app.use(credentailsRoutes);
+app.use(generalSetting);
+
+export default app;

@@ -1,0 +1,174 @@
+ <%- include('./partials/header.ejs') %>
+
+  <div class="right-bar">
+    <h2 class="custom-heading custom-card">Manage Reactions</h2>
+    <div class="custom-card">
+      <div class="user-profile-deatils">
+        <div class="user-profile-deatils-inner">
+          <div class="section-header">
+            <a href="/reaction-add" class="add_import"><i class="fi fi-rs-plus"></i></a>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-striped" id="reactiontable"></table>
+            <div id="loader" class="loader-overlay loader-main">
+              <div class="loader">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav class="paginaton-section">
+        <ul class="pagination" id="pagination"></ul>
+      </nav>
+    </div>
+  </div>
+
+  <%- include('./partials/footer.ejs') %>
+    <!-- Delete Modal -->
+    <div class="modal fade delete-modal" id="deleteModel" tabindex="-1" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="delete-content">
+            <img src="images/remove.png" alt="delete img" class="delete-img" />
+            <h3>Are you sure?</h3>
+            <p>
+              Do you want really want do delete this role <br />
+              this file cannot be find
+            </p>
+            <div class="delete-content-btn">
+              <button type="button" class="btn btn-danger" id="confirmDeleteRole" onClick="">
+                Delete
+              </button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      $(document).ready(() => {
+        getDataTable();
+      });
+
+      function getDataTable(pageno) {
+        $(".loader-main").css("display", "flex")
+        return new Promise((res, rej) => {
+          $.ajax({
+            method: "GET",
+            url: `/get-reaction`,
+            success: (response) => {
+              handleDataTable(response);
+              res();
+              $(".loader-main").css("display", "none")
+            },
+            error: (error) => {
+              rej();
+              $(".loader-main").css("display", "none")
+
+            },
+          });
+        });
+      }
+
+      function reactiontable(response) {
+        if (response.success) {
+          let content = `<thead>
+              <tr>
+                <th>Name</th>
+                <th>Photo</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>`;
+          for (let reaction = 0; reaction < response.data.length; reaction++) {
+            const data = response.data[reaction];
+            content += `<tr>
+                <td>
+                  ${data.name}
+                  </a>
+                </td>
+                <td>
+                    <img src= ${data.url} alt="img_user" class="tabel-user-img">
+                </td>
+                <td>
+                  <div class="action-button">
+                    <a
+                      href="/reaction-edit?id=${data._id}"
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="top"
+                      data-bs-title="Edit"
+                    >
+                      <i class="fi fi-rs-pencil"></i
+                    ></a>
+                    ${reaction !== 0
+                ? `<a
+                      href="javascript:void(0)"
+                      class="delete-btn"
+                      onClick="deleteButton(this.id)" id="${data._id}"
+                    >
+                      <i class="fi fi-rs-trash"></i>
+                      <span class="tooltiptext">Delete</span>
+                    </a>`
+                : ""
+              }
+                    
+                  </div>
+                </td>
+              </tr>`;
+          }
+          content += `</tbody>`;
+          return content;
+        }
+      }
+
+      function handleDataTable(response) {
+        if (!response.data.length) {
+          const content = `<div class="alert alert-warning text-center" role="alert" style="margin:15px;">
+        Stickers not found.
+        </div>`;
+          $("#reactiontable").html(content);
+          return;
+        }
+        // const paginationContent = getPaginationContent(
+        //   response.data.count,
+        //   pageSize,
+        //   page
+        // );
+        const content = reactiontable(response);
+        $("#reactiontable").html(content);
+        // $("#pagination").html(paginationContent);
+      }
+
+      function deleteButton(id) {
+        $("#confirmDeleteRole").attr("onClick", `confirmDeleteReaction('${id}')`);
+        $("#deleteModel").modal("show");
+      }
+
+      function deleteReaction(id, refreshFunction) {
+        $.ajax({
+          type: "POST",
+          url: "/delete-reaction",
+          data: { id: id },
+          success: (response) => {
+            toastNotification("success", response.message);
+            refreshFunction && refreshFunction();
+          },
+          error: (error) => {
+            toastNotification("danger", error.responseJSON.message);
+          },
+        });
+      }
+
+      function confirmDeleteReaction(id) {
+        $("#deleteModel").modal("hide");
+        deleteReaction(id, getDataTable);
+      }
+    </script>

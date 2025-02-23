@@ -1,0 +1,184 @@
+<%- include('./partials/header.ejs') %>
+<div class="right-bar">
+  <h2 class="custom-heading custom-card">Add User</h2>
+  <div class="custom-card">
+    <div class="custom-card-info">
+      <h4>Enter user details</h4>
+    </div>
+    <div class="row custom-form-section">
+      <div class="col-lg-6 col-md-12">
+        <form class="form">
+          <div class="form-group">
+            <label id="name">Name</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Name"
+              name="name"
+              id="name"
+              onchange="validate()"
+              required
+            />
+            <small>Displayed User Name</small>
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              class="form-control"
+              placeholder="Email address"
+              name="email"
+              id="email"
+              onchange="validate()"
+              required
+            />
+            <small>Unique Identifier of the User.</small>
+          </div>
+          <div class="form-group">
+            <label for="uid">UID</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="UID"
+              name="uid"
+              id="uid"
+              onchange="validate(); uidExistCheck(this.value);"
+              required
+            />
+            <small>UID of the User.</small>
+          </div>
+          <div class="form-group">
+            <label id="role">Role</label>
+            <select
+              class="form-select form-control"
+              name="role"
+              id="role"
+              required
+              onchange="validate()"
+            >
+              <option value="4">Default Level</option>
+              <option value="3">Moderators</option>
+              <option value="2">Admin</option>
+              <option value="1">Super Admin</option>
+            </select>
+            <small>Unique Identifier of the User.</small>
+          </div>
+          <!-- <div class="form-group">
+                            <label>Tags</label>
+                            <input type="text" class="form-control" placeholder="Tags" name="tags">
+                            <small>Tags for better search, separated by hash.</small>
+                        </div> -->
+          <div class="form-group">
+            <label for="avatar">Avatar</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="https://example.com/avatar.png"
+              id="avatar"
+              name="avatar"
+              required
+            />
+            <small>Url to the profile picture.</small>
+          </div>
+          <div class="form-group">
+            <label for="link">Link</label>
+            <input
+              type="text"
+              class="form-control"
+              id="link"
+              placeholder="https://example.com/user-profile"
+              name="link"
+            />
+            <small>Url to the profile page.</small>
+          </div>
+          <div class="form-group">
+            <label for="metadata">Metadata</label>
+            <textarea
+              class="form-control"
+              placeholder="Enter JSON data"
+              name="metadata"
+              id="metadata"
+            ></textarea>
+            <small>Additional user data in JSON format</small>
+          </div>
+          <button id="submitbutton" class="btn btn-primary" disabled>
+            Save
+          </button>
+          <a href="/user" class="btn btn-info">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('./partials/footer.ejs') %>
+
+<script>
+  let uidExist = true;
+  function uidExistCheck(uid) {
+    $.ajax({
+      type: "GET",
+      url: `/uid/${uid}`,
+      data: {},
+      success: (data) => {
+        console.log(data, "dta");
+        uidExist = true;
+        toastNotification("danger", "UID exist");
+      },
+      error: (error) => {
+        uid && (uidExist = false);
+        console.log(error, "avaliable uid ");
+      },
+    });
+  }
+
+  function validate() {
+    const name = $('input[name="name"]').val();
+    const email = $('input[name="email"]').val();
+    const role = $('select[name="role"]').val();
+    const avatar = $('input[name="avatar"]').val();
+    const uid = $('input[name="uid"]').val();
+    const link = $('input[name="link"]').val();
+    const metadata = $('input[name="metadata"]').val();
+    if (name && email && ["1", "2", "3"].includes(role)) {
+      $("#submitbutton").removeAttr("disabled");
+    } else {
+      $("#submitbutton").attr("disabled", "disabled");
+    }
+  }
+
+  $("#submitbutton").click((e) => {
+    e.preventDefault();
+    const name = $('input[name="name"]').val();
+    const email = $('input[name="email"]').val();
+    const role = $('select[name="role"]').val();
+    const avatar = $('input[name="avatar"]').val();
+    const uid = $('input[name="uid"]').val();
+    const link = $('input[name="link"]').val();
+    const metadata = $('textarea[name="metadata"]').val();
+    if (!uidExist) {
+      $.ajax({
+        type: "POST",
+        url: "/add-user",
+        data: {
+          name,
+          email,
+          role: +role,
+          avatar,
+          link,
+          uid: +uid,
+          metadata,
+        },
+        success: (response) => {
+          toastNotification("success", response.message);
+          window.location.href = "/user";
+        },
+        error: (error) => {
+          toastNotification("danger", error.responseJSON.message);
+        },
+      });
+    } else {
+      toastNotification("danger", "please enter unique UID");
+    }
+  });
+</script>

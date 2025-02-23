@@ -1,0 +1,87 @@
+ <%- include('./partials/header.ejs') %>
+<div class="right-bar">
+  <h2 class="custom-heading custom-card">Add Role</h2>
+  <div class="custom-card">
+    <div class="custom-card-info">
+      <h4>Enter Role Details</h4>
+    </div>
+    <div class="row custom-form-section">
+      <div class="col-lg-6 col-md-12">
+        <form class="form" method="post" action="/role">
+          <div class="form-group">
+            <label for="roleId">Role ID</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Enter Id"
+              name="roleId"
+              id="roleId"
+              oninput="validateRoleId()"
+              required
+            />
+            <small id="validationmessage">Unique identifier of the Role</small>
+          </div>
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Role Name"
+              name="name"
+              id="name"
+              required
+            />
+            <small>Displayed Role Name</small>
+          </div>
+          <div class="form-group">
+            <label for="description">Description</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Description"
+              name="description"
+              id="description"
+              required
+            />
+            <small>Some description about the Role.</small>
+          </div>
+          <button type="submit" class="btn btn-primary" id="submitButton">
+            Save
+          </button>
+          <a href="/role" class="btn btn-info">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('./partials/footer.ejs') %>
+
+<script>
+  function validateRoleId() {
+    const roleId = $("input[name=roleId]").val();
+    if (!roleId) {
+      return;
+    }
+    $.ajax({
+      type: "GET",
+      url: `/validate-role-id?roleId=${roleId}`,
+      success: (response) => {
+        $('input[name="roleId"]')
+          .removeClass("is-invalid")
+          .addClass("is-valid");
+        $("#validationmessage").addClass("is-valid").html(response.message);
+      },
+      error: (error) => {
+        $('input[name="roleId"]')
+          .removeClass("is-valid")
+          .addClass("is-invalid");
+        $("#validationmessage")
+          .addClass("is-invalid")
+          .html(error.responseJSON.message);
+      },
+    });
+  }
+
+  function inputValidation() {}
+</script>

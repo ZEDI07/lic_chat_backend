@@ -1,0 +1,330 @@
+ <%- include('./partials/header.ejs') %>
+  <div class="right-bar">
+    <h2 class="custom-heading custom-card">General Chat Setting</h2>
+    <div class="custom-card">
+      <div class="row custom-form-section">
+        <div class="col-lg-6 col-md-12">
+          <form class="form">
+            <div class="form-group">
+              <label for="seletedLanguage">Reduce Image Size</label>
+            </div>
+            <div class="form-group">
+              <label id="name" for="quality">Quality</label>
+              <input type="text" class="form-control" placeholder="Enter Reduce Quality in Percentage" value=""
+                id="quality" />
+            </div>
+            <div class="form-group">
+              <button id="image-size" class="btn btn-primary">Update</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="custom-card">
+      <div class="row custom-form-section">
+        <div class="col-lg-6 col-md-12">
+          <form class="form">
+            <div class="form-group">
+              <label for="seletedLanguage">Allow messaging</label>
+            </div>
+            <div class="form-group">
+              <label id="messaging_label" for="messaging_option">
+                Do you want to allow members to message each other?
+              </label>
+              <select class="form-select form-control" id="messaging_option" name="messaging_option">
+                <option value="2">Friends Only</option>
+                <option value="1">Everyone</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <button id="messaging" class="btn btn-primary">Update</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="custom-card">
+      <div class="row custom-form-section">
+        <div class="col-lg-6 col-md-12">
+          <form class="form" id="group_chat_form">
+            <div class="form-group">
+              <label for="seletedLanguage">Group Chat</label>
+            </div>
+            <div class="form-group">
+              <label id="group_lable" for="messaging_option">
+                Do you want to enable group chat?
+              </label>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" name="" id="group_chat">
+                <label class="form-check-label" for="group_chat">Enabled</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <button id="group-chat-btn" class="btn btn-primary">Update</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="custom-card">
+      <div class="row custom-form-section">
+        <div class="col-lg-6 col-md-12">
+          <form class="form">
+            <div class="form-group">
+              <label for="seletedLanguage">Parent Domain URL</label>
+            </div>
+            <div class="form-group">
+              <!-- <label id="name" for="quality">Quality</label> -->
+              <input type="text" class="form-control" placeholder="Enter parent domain url" value="" id="domainurl" />
+            </div>
+            <!-- <div class="form-group">
+            <label id="name" for="imageSizeWidth">Width</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Enter width"
+              value=""
+              id="imageSizeWidth"
+            />
+          </div> -->
+            <div class="form-group">
+              <button id="domainurlbtn" class="btn btn-primary">Update</button>
+            </div>
+            <!-- <a href="/language" class="btn btn-info">Cancel</a> -->
+          </form>
+          <!-- <form class="form">
+          <div class="form-group">
+            <label for="seletedLanguage">Reduce Video Size</label>
+          </div>
+          <div class="form-group">
+            <label id="name" for="videSizeReduce">Size Reduce</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Enter size reduce in %"
+              value=""
+              id="videSizeReduce"
+            />
+          </div>
+          <div class="form-group">
+            <label id="name" for="videoFpsReduce">FPS</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Enter FPS"
+              value=""
+              id="videoFpsReduce"
+            />
+          </div>
+          <div class="form-group">
+            <button id="video-size" class="btn btn-primary">Update</button>
+          </div>
+          <a href="/language" class="btn btn-info">Cancel</a>
+        </form> -->
+        </div>
+      </div>
+    </div>
+    <div class="custom-card">
+      <div class="row custom-form-section">
+        <div class="col-lg-6 col-md-12">
+          <form class="form">
+            <div class="form-group">
+              <label for="seletedLanguage">Auto Delete Media Attachments</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" id="yes" name="delete" value=true />
+              <label for="yes" class="form-check-label" for="exampleRadios1">
+                Yes
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" id="yes" name="delete" value=false checked />
+              <label for="yes" class="form-check-label" for="exampleRadios1">
+                No
+              </label>
+            </div>
+            <div class="form-group">
+              <button id="delete" class="btn btn-primary">Update</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <%- include('./partials/footer.ejs') %>
+
+    <script>
+      $(document).ready(() => {
+        settingConfig();
+        messagingConfig();
+        domainConfig();
+        deleteConfig();
+        groupConfig();
+      });
+
+      $("#image-size").click((e) => {
+        e.preventDefault();
+        const quality = $("#quality").val();
+        // const width = $("#imageSizeWidth").val();
+        $.ajax({
+          method: "POST",
+          url: "/general-chat-setting",
+          data: {
+            quality: quality,
+            // width: width,
+          },
+          success: (response) => {
+            toastNotification("success", response.message);
+            settingConfig();
+          },
+          error: (error) => {
+            toastNotification("danger", error.responseJSON.message);
+          },
+        });
+      });
+
+      $("#messaging").click((e) => {
+        e.preventDefault();
+        const option = $("select[name='messaging_option']").val();
+        $.ajax({
+          method: "POST",
+          url: "/general-chat-setting",
+          data: { messaging_setting: option },
+          success: (response) => {
+            toastNotification("success", response.message);
+          },
+          error: (error) => {
+            toastNotification("danger", error.responseJSON.message);
+          },
+        });
+      });
+
+      $("#domainurlbtn").click((e) => {
+        e.preventDefault();
+        const option = $("#domainurl").val();
+        $.ajax({
+          method: "POST",
+          url: "/general-chat-setting",
+          data: { domain: option },
+          success: (response) => {
+            toastNotification("success", response.message);
+          },
+          error: (error) => {
+            toastNotification("danger", error.responseJSON.message);
+          },
+        });
+      });
+
+      $("#delete").click(e => {
+        e.preventDefault();
+        const value = $("input[name='delete']:checked").val();
+        $.ajax({
+          method: "POST",
+          url: "/general-chat-setting",
+          data: { auto_delete_attachment: { status: value, day: 30, contentType: ["video", "application"] } },
+          success: (response) => {
+            toastNotification("success", response.message);
+          },
+          error: (error) => {
+            toastNotification("danger", error.responseJSON.message);
+          },
+        });
+      })
+
+      $("#group-chat-btn").click(e => {
+        e.preventDefault();
+        const value = $("#group_chat").is(":checked");
+        $.ajax({
+          method: "POST",
+          url: "/general-chat-setting",
+          data: { group: { enabled: value } },
+          success: (response) => {
+            toastNotification("success", response.message);
+          },
+          error: (error) => {
+            toastNotification("danger", error.responseJSON.message);
+          },
+        });
+      })
+
+      function groupConfig() {
+        $.ajax({
+          type: "GET",
+          url: `/general-chat-setting-config?key=group`,
+          success: (response) => {
+            if (response.success) {
+              const { group, upgrade } = response.data;
+              if (upgrade) {
+                $("#group_chat_form").html('<div class="form-group"><label for="seletedLanguage">Group Chat</label></div><div class="form-group"><button disabled class="btn btn-primary">Premium</button></div>');
+                return
+              }
+              $("#group_chat").prop('checked', group?.enabled);
+            }
+          },
+          error: (error) => { },
+        });
+      }
+
+      function settingConfig() {
+        $.ajax({
+          type: "GET",
+          url: `/general-chat-setting-config?key=image_setting`,
+          success: (response) => {
+            handleServiceContent(response);
+          },
+          error: (error) => { },
+        });
+      }
+
+      function handleServiceContent(response) {
+        if (response.success) {
+          const { quality } = response.data;
+          $("#quality").val(quality);
+          // $("#imageSizeWidth").val(imageSize?.width);
+          // $("#videSizeReduce").val(videoSize?.size);
+          // $("#videoFpsReduce").val(videoSize?.fps);
+        }
+      }
+
+      function messagingConfig() {
+        $.ajax({
+          type: "GET",
+          url: `/general-chat-setting-config?key=messaging_setting`,
+          success: (response) => {
+            if (response.success) {
+              const { messaging_setting } = response.data;
+              $("select[name='messaging_option']").val(messaging_setting);
+            }
+          },
+          error: (error) => { },
+        });
+      }
+
+      function domainConfig() {
+        $.ajax({
+          type: "GET",
+          url: `/general-chat-setting-config?key=domain`,
+          success: (response) => {
+            if (response.success) {
+              const { domain } = response.data;
+              $("#domainurl").val(domain);
+            }
+          },
+          error: (error) => { },
+        });
+      }
+
+      function deleteConfig() {
+        $.ajax({
+          type: "GET",
+          url: `/general-chat-setting-config?key=auto_delete_attachment`,
+          success: (response) => {
+            if (response.success) {
+              const { auto_delete_attachment } = response.data;
+              $(`input[type=radio][name=delete][value=${auto_delete_attachment.status}]`).prop('checked', true);
+            }
+          },
+          error: (error) => { },
+        });
+      }
+    </script>

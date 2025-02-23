@@ -1,0 +1,97 @@
+ <%- include('./partials/header.ejs') %>
+<div class="right-bar">
+  <h2 class="custom-heading custom-card">Add Group</h2>
+  <div class="custom-card">
+    <div class="custom-card-info">
+      <h4>Enter Group Details</h4>
+    </div>
+    <div class="row custom-form-section">
+      <div class="col-lg-6 col-md-12">
+        <form class="form">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Name"
+              id="name"
+              name="name"
+            />
+            <small>Displayed User Name</small>
+          </div>
+          <div class="form-group">
+            <label for="type">Type</label>
+            <select class="form-select form-control" id="type" name="type">
+              <option selected>Default</option>
+              <option value="0">Private</option>
+              <option value="1">Public</option>
+              <option value="2">Password Protected</option>
+            </select>
+            <small>Unique Identifier of the User.</small>
+          </div>
+          <div class="form-group">
+            <label for="avatar">Avatar</label>
+            <input
+              type="text"
+              class="form-control"
+              name="avatar"
+              id="avatar"
+              placeholder="https://example.com/avatar.png"
+            />
+            <small>Url to the profile picture.</small>
+          </div>
+          <div class="form-group">
+            <label for="link">Link</label>
+            <input
+              type="text"
+              class="form-control"
+              name="link"
+              id="link"
+              placeholder="https://example.com/user-profile"
+            />
+            <small>Url to the profile page.</small>
+          </div>
+          <div class="form-group">
+            <label for="metadata">Metadata</label>
+            <textarea
+              class="form-control"
+              placeholder="Enter JSON data"
+              name="metadata"
+              id="metadata"
+            ></textarea>
+            <small>Additional user data in JSON format</small>
+          </div>
+          <button id="submit" class="btn btn-primary">Save</button>
+          <a href="/group" class="btn btn-info">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('./partials/footer.ejs') %>
+
+<script>
+  $("#submit").click((e) => {
+    e.preventDefault();
+    const data = {
+      name: $('input[name="name"]').val(),
+      type: Number($('select[name="type"]').val()),
+      avatar: $('input[name="avatar"]').val(),
+      link: $('input[name="link"]').val(),
+      metadata: $('textarea[name="metadata"]').val(),
+    };
+    $.ajax({
+      url: "/group-add",
+      method: "POST",
+      data: data,
+      success: (response) => {
+        toastNotification("success", "Group Created Successfully.");
+        window.location.href = "/group";
+      },
+      error: (error) => {
+        toastNotification("danger", error.responseJSON.message);
+      },
+    });
+  });
+</script>

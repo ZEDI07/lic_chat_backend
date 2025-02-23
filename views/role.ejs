@@ -1,0 +1,211 @@
+ <%- include('./partials/header.ejs') %>
+  <script src="/script/dateConverter.js"></script>
+  <div class="right-bar">
+    <h2 class="custom-heading custom-card">Roles</h2>
+    <div class="custom-card">
+      <div class="user-profile-deatils">
+        <div class="user-profile-deatils-inner">
+          <div class="section-header">
+            <a href="/role-add" class="add_import"><i class="fi fi-rs-plus"></i></a>
+            <div class="custom-form-section section-header-form">
+              <div class="section-header-form-item _search">
+                <i class="fi fi-rs-search"></i>
+                <input type="text" class="form-control" placeholder="Search" name="search" id="searchInput"
+                  oninput="search()" />
+              </div>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-striped" id="roledatatable"></table>
+            <div id="loader" class="loader-overlay loader-main">
+              <div class="loader">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav class="paginaton-section">
+        <ul class="pagination" id="pagination"></ul>
+      </nav>
+    </div>
+  </div>
+
+  <%- include('./partials/footer.ejs') %>
+    <!-- Delete Modal -->
+    <div class="modal fade delete-modal" id="deleteModel" tabindex="-1" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="delete-content">
+            <img src="images/remove.png" alt="delete img" class="delete-img" />
+            <h3>Are you sure?</h3>
+            <p>
+              Do you want really want do delete this role <br />
+              this file cannot be find
+            </p>
+            <div class="delete-content-btn">
+              <button type="button" class="btn btn-danger" id="confirmDeleteRole" onClick="">
+                Delete
+              </button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      $(document).ready(() => {
+        getDataTable(1);
+      });
+
+      let page = 1;
+      const pageSize = 10;
+
+      function getDataTable(pageno) {
+        $(".loader-main").css("display", "flex")
+        return new Promise((res, rej) => {
+          page = pageno || page;
+          $.ajax({
+            method: "GET",
+            url: `/get-roles?page=${page - 1}&limit=${pageSize}`,
+            success: (response) => {
+              handleDataTable(response);
+              res();
+              $(".loader-main").css("display", "none")
+            },
+            error: (error) => {
+              rej();
+              $(".loader-main").css("display", "none")
+            },
+          });
+        });
+      }
+
+      function roleDatatable(response) {
+        if (response.success) {
+          let content = `<thead>
+              <tr>
+                <th>Name</th>
+                <th class="text-center">Role Id</th>
+                <th>Description</th>
+                <th>Created</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>`;
+          for (let role = 0; role < response.data.role.length; role++) {
+            const data = response.data.role[role];
+            content += `<tr>
+                <td>
+                  <a href='/role-profile?id=${data._id}'>
+                  ${data.name}
+                  </a>
+                </td>
+                <td class="text-center">${data.roleId}</td>
+                <td>${data.description}</td>
+                <td>${dateConverter(data.createdAt)}</td>
+                <td>
+                  <div class="action-button">
+                    <a 
+                        href="/role-profile?id=${data._id}" 
+                        class="delete-btn"
+                        >
+                          <i class="fi fi-rs-eye"></i>
+                          <span class="tooltiptext">View</span>
+                    </a>
+                    <a
+                      href="/role-edit?id=${data._id}"
+                      class="delete-btn"
+                    >
+                      <i class="fi fi-rs-pencil"></i>
+                      <span class="tooltiptext">Edit</span>
+                      </a>
+                    <a
+                      href="javascript:void(0)"
+                      class="delete-btn"
+                      onClick="deleteButton(this.id)" id="${data._id}"
+                    >
+                      <i class="fi fi-rs-trash"></i>
+                      <span class="tooltiptext">Delete</span>
+                    </a>
+                  </div>
+                </td>
+              </tr>`;
+          }
+          content += `</tbody>`;
+          return content;
+        }
+      }
+
+      function handleDataTable(response) {
+        if (!response.data.count) {
+          const content = `<div class="alert alert-warning text-center" role="alert" style="margin:15px;">
+        No Roles found.
+        </div>`;
+          $("#roledatatable").html(content);
+          return;
+        }
+        const paginationContent = getPaginationContent(
+          response.data.count,
+          pageSize,
+          page
+        );
+        const content = roleDatatable(response);
+        $("#roledatatable").html(content);
+        $("#pagination").html(paginationContent);
+      }
+
+      function search() {
+        return new Promise((res, rej) => {
+          let value = $("#searchInput").val();
+          const key = "name";
+          if (!value) {
+            getDataTable();
+            return;
+          }
+          $.ajax({
+            type: "GET",
+            url: `/get-roles?key=${key}&value=${value}&page=${page - 1
+              }&limit=${pageSize}`,
+            success: (response) => {
+              handleDataTable(response), res();
+            },
+            error: (error) => {
+              rej();
+            },
+          });
+        });
+      }
+
+      function deleteButton(id) {
+        $("#confirmDeleteRole").attr("onClick", `deleteUser('${id}')`);
+        $("#deleteModel").modal("show");
+      }
+
+      function changeRoleStatus(id, status, refreshFunction) {
+        $.ajax({
+          type: "POST",
+          url: "/update-role-status",
+          data: { id: id, status: status },
+          success: (response) => {
+            toastNotification("success", response.message);
+            refreshFunction();
+          },
+          error: (error) => {
+            toastNotification("danger", error.responseJSON.message);
+          },
+        });
+      }
+
+      function deleteUser(id) {
+        $("#deleteModel").modal("hide");
+        changeRoleStatus(id, false, getDataTable);
+      }
+    </script>

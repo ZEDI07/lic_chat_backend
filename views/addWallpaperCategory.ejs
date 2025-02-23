@@ -1,0 +1,129 @@
+ <%- include('./partials/header.ejs') %>
+
+  <div class="right-bar">
+    <h2 class="custom-heading custom-card">Add Wallpaper Category</h2>
+    <div class="custom-card">
+      <div class="row custom-form-section">
+        <div class="col-lg-6 col-md-12">
+          <form class="form">
+            <div>
+              <div class="form-group">
+                <label for="categoryname">Category Name</label>
+                <input type="text" class="form-control" placeholder="Enter category name" name="categoryname"
+                  id="categoryname" value="" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="color-picker">color</label>
+              <div class="form-group common_color_picker">
+                <input type="color" class="form-control-color" value="#000000" id="color-picker" name="color" />
+                <span id="value">#000000</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="startDate">Choose start date</label>
+              <input type="date" class="form-control" placeholder="Select Start Date" name="startDate" id="startDate"
+                value="2018-07-22"  />
+            </div>
+            <div class="form-group common_form_check_box">
+              <label>Enable End Date </label>
+              <p>Do you want to enable an end date for this wallpaper image?</p>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="enableEndDate" id="yes" value="yes" />
+                <label for="yes" class="form-check-label"> Yes </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="enableEndDate" value="no" id="no" checked />
+                <label for="no" class="form-check-label"> No </label>
+              </div>
+            </div>
+            <div style="display: none" id="endDateInputBox">
+              <div class="form-group">
+                <label for="endDate">Choose end date</label>
+                <input type="date" class="form-control" placeholder="Select End date." name="endDate" id="endDate"
+                  value="" />
+              </div>
+            </div>
+            <div>
+              <div class="form-group">
+                <input type="hidden" valud="" id="media" />
+                <label for="inputfile">Photo </label>
+                <input type="file" class="form-control" placeholder="Select reaction to upload" id="inputfile"
+                  name="wallpapercategory" value="" accept="image/*" />
+                <ul class="upload-files-progress" id="uploadimages">
+                  <li id="uploadimages_default" style="display: none">
+                    <div class="alert alert-warning text-center" role="alert" style="margin: 15px">
+                      Please select file to upload.
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <button id="savefile" class="btn btn-primary" disabled>Save</button>
+            <a href="/wallpaper" class="btn btn-info">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('./partials/footer.ejs') %>
+
+    <script src="/script/filemanager.js"></script>
+
+    <script>
+      var colorPicker = document.getElementById("color-picker");
+      var colorValue = document.getElementById("value");
+      colorPicker.onchange = function () {
+        colorValue.innerHTML = colorPicker.value;
+        colorValue.style.color = colorPicker.value;
+      };
+      const date = moment().format('YYYY-MM-DD');
+      $("#startDate").val(date)
+      $("input[name='enableEndDate']").change(() => {
+        const value = $("input[name='enableEndDate']:checked").val();
+        if (value == "yes") {
+          $("#endDateInputBox").show();
+          $("#endDate").val(moment().add(1,"d").format("YYYY-MM-DD"))
+        } else {
+          $("#endDateInputBox").hide();
+        }
+      });
+
+      $("#savefile").click(async (e) => {
+        e.preventDefault();
+        $(".removefile").hide();
+        $("#savefile").prop("disabled", true);
+        const response = await uploadFile(files[0], "wallpaper", files[0].id);
+        if (!response.success) {
+          toastNotification("danger", "Error while uploading Image");
+          return;
+        }
+        const data = {
+          name: $('input[name="categoryname"]').val(),
+          color: $('input[name="color"]').val(),
+          media: response.data._id,
+          startDate: $('input[name="startDate"]').val(),
+        };
+        console.log("Date ..", data.startDate)
+        const value = $("input[name='enableEndDate']:checked").val();
+        const endDate = $('input[name="endDate"]').val();
+        value == "yes" && endDate && (data.endDate = endDate);
+        $.ajax({
+          url: "/add-wallpaper-category",
+          method: "POST",
+          data: data,
+          success: (response) => {
+            toastNotification("success", "wallpaper Added Successfully");
+            timeoutRedirect("/wallpaper");
+          },
+          error: (error) => {
+            toastNotification(
+              "danger",
+              JSON.parse(error?.responseText)?.message || "Error !!"
+            );
+            $("#savefile").prop("disabled", false);
+          },
+        });
+      });
+    </script>

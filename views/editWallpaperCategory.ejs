@@ -1,0 +1,176 @@
+ <%- include('./partials/header.ejs') %>
+
+<div class="right-bar">
+  <h2 class="custom-heading custom-card">Edit Wallpaper Category</h2>
+
+  <div class="custom-card">
+    <div class="row custom-form-section">
+      <div class="col-lg-6 col-md-12">
+        <form class="form">
+          <% if(data){%>
+          <input type="hidden" id="id" name="id" value="<%=data._id%>" />
+          <div>
+            <div class="form-group">
+              <label for="categoryname">Category Name</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter reaction name"
+                id="categoryname"
+                name="categoryname"
+                value="<%= data.name %>"
+              />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="color-picker">Color</label>
+            <div class="form-group common_color_picker">
+              <input
+                type="color"
+                class="form-control-color"
+                value="<%= data.color %>"
+                id="color-picker"
+                name="color"
+              />
+              <span id="value"><%= data.color %></span>
+            </div>
+          </div>
+          <div>
+            <div class="form-group">
+              <label for="startDate">Choose start date</label>
+              <input
+                type="date"
+                class="form-control"
+                placeholder="Select Start Date"
+                name="startDate"
+                id="startDate"
+                value='<%=new Date(data.startDate).toLocaleDateString("sv-SE",{ year: "numeric", month: "2-digit", day: "2-digit" })%>'
+              />
+            </div>
+          </div>
+          <div class="form-group common_form_check_box">
+            <label>Enable End Date </label>
+            <p>Do you want to enable an end date for this wallpaper image?</p>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                id="yes"
+                name="enableEndDate"
+                value="yes"
+                <%if(data.endDate){%>checked <%}%> />
+              <label for="yes" class="form-check-label" for="exampleRadios1">
+                Yes
+              </label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="enableEndDate"
+                id="no"
+                value="no"
+                <%if(!data.endDate){%>checked <%}%> />
+              <label for="no" class="form-check-label" for="exampleRadios2">
+                No
+              </label>
+            </div>
+          </div>
+          <div <% if(!data.endDate) {%>
+            style="display: none" <%}%> id="endDateInputBox">
+            <div class="form-group">
+              <label for="endDate">Choose end date</label>
+              <input
+                type="date"
+                class="form-control"
+                placeholder="Select End date."
+                id="endDate"
+                name="endDate"
+                value='<%=data.endDate ? new Date(data.endDate).toLocaleDateString("sv-SE",{ year: "numeric", month: "2-digit", day: "2-digit" }) : "" %>'
+              />
+            </div>
+          </div>
+          <div>
+            <div class="form-group">
+              <input type="hidden" valud="" id="media" />
+              <label for="inputfile">Photo </label>
+              <input
+                type="file"
+                class="form-control"
+                placeholder="Select reaction to upload"
+                id="inputfile"
+                name="file"
+                value=""
+                accept="image/*"
+              />
+              <ul class="upload-files-progress" id="uploadimages">
+                <li id="uploadimages_default">
+                  <div class="upload-files-progress-left">
+                    <img
+                      src="<%= data.url %>"
+                      alt="img upload"
+                      id="previewImg"
+                    />
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <button id="savefile" class="btn btn-primary">Save</button>
+          <a href="/wallpaper" class="btn btn-info">Cancel</a>
+          <%} %>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('./partials/footer.ejs') %>
+
+<script src="/script/filemanager.js"></script>
+
+<script>
+  $("input[name='enableEndDate']").change(() => {
+    const value = $("input[name='enableEndDate']:checked").val();
+    if (value == "yes") {
+      $("#endDateInputBox").show();
+    } else {
+      $("#endDateInputBox").hide();
+    }
+  });
+
+  $("#savefile").click(async (e) => {
+    e.preventDefault();
+    const response =
+      files &&
+      files[0] &&
+      $(".removefile").hide() &&
+      (await uploadFile(files[0], "wallpaper", files[0].id));
+    const data = {
+      id: $('input[name="id"]').val(),
+      name: $('input[name="categoryname"]').val(),
+      color: $('input[name="color"]').val(),
+      startDate: $('input[name="startDate"]').val(),
+    };
+    const value = $("input[name='enableEndDate']:checked").val();
+    const endDate = $('input[name="endDate"]').val();
+    value == "yes" && endDate && (data.endDate = endDate);
+    response && response.data?._id && (data.media = response.data._id);
+    $.ajax({
+      url: "/edit-wallpaper-category",
+      method: "POST",
+      data: data,
+      success: (response) => {
+        toastNotification("success", "Category Updated Successfully");
+        timeoutRedirect("/wallpaper");
+      },
+      error: (error) => {
+        console.log('eror')
+        toastNotification(
+          "danger",
+          JSON.parse(error?.responseText)?.message || "Error !!"
+        );
+      },
+    });
+  });
+</script>

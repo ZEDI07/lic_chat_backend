@@ -1,0 +1,541 @@
+ <%- include('./partials/header.ejs') %>
+
+<div class="right-bar">
+  <h2 class="custom-heading custom-card">Edit Storage Service</h2>
+  <div class="custom-card">
+    <div class="row custom-form-section">
+      <div class="col-lg-6 col-md-12">
+        <form class="form">
+          <div class="form-group">
+            <label for="name" for="name">Select Type</label>
+            <select
+              class="form-select form-control"
+              id="name"
+              name="name"
+              disabled
+            >
+              <option value="local_storage">Local Storage</option>
+              <option value="amazon_s3">Amazon S3</option>
+              <option value="amazon_s3_compatible_storage">
+                Amazon S3 Compatible Storage
+              </option>
+              <option value="digital_ocean_space">Digital Ocean Space</option>
+              <option value="virtual_file_system">Virtual File System</option>
+              <option value="wasabi_cloud_storage">Wasabi Cloud Storage</option>
+            </select>
+          </div>
+          <div style="display: none" id="amazon_s3">
+            <div class="form-group">
+              <label for="accessKeyId">ACCESS KEY</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter access key"
+                name="accessKeyId"
+                id="accessKeyId"
+                value=""
+              />
+            </div>
+            <div class="form-group">
+              <label for="secretAccessKey">SECRET ACCESS KEY</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter secret access key"
+                name="secretAccessKey"
+                id="secretAccessKey"
+                value=""
+              />
+            </div>
+            <div class="form-group">
+              <label for="region">REGION</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter storage region"
+                id="region"
+                name="region"
+                value=""
+              />
+            </div>
+            <div class="form-group">
+              <label for="bucket">BUCKET NAME</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter bucket name"
+                name="bucket"
+                id="bucket"
+                value=""
+              />
+            </div>
+            <div class="form-group">
+              <label for="cdn_url">CDN URL</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter bucket CDN url."
+                name="cdn_url"
+                id="cdn_url"
+                value=""
+              />
+            </div>
+          </div>
+          <div style="display: none" id="amazon_s3_compatible_storage">
+            <div class="form-group">
+              <label for="accessKeyId">ACCESS KEY</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter access key"
+                name="accessKeyId"
+                id="accessKeyId"
+                value=""
+              />
+            </div>
+            <div class="form-group">
+              <label id="secretAccessKey">SECRET ACCESS KEY</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter secret access key"
+                id="secretAccessKey"
+                name="secretAccessKey"
+                value=""
+              />
+            </div>
+            <div class="form-group">
+              <label for="region">REGION</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter storage region"
+                id="region"
+                name="region"
+                value=""
+              />
+            </div>
+            <div class="form-group">
+              <label for="bucket">BUCKET NAME</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter bucket name"
+                name="bucket"
+                id="bucket"
+                value=""
+              />
+            </div>
+            <div class="form-group">
+              <label for="endpoint_url">ENDPOINT URL</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter storage endpont url."
+                name="endpoint_url"
+                id="endpoint_url"
+                value=""
+              />
+            </div>
+            <div class="form-group">
+              <label for="cdn_url">CDN URL</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter bucket CDN url."
+                name="cdn_url"
+                id="cdn_url"
+                value=""
+              />
+            </div>
+          </div>
+          <div style="display: none" id="virtual_file_system">
+            <div class="form-group">
+              <label id="remoteHost">Remote Host</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter remote host address."
+                name="remoteHost"
+                id="remoteHost"
+                value=""
+              />
+            </div>
+            <div class="form-group">
+              <label for="remotePort">Remote Port</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter port number"
+                name="remotePort"
+                id="remotePort"
+                value=""
+              />
+            </div>
+            <div class="form-group">
+              <label for="username">User name</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter user name"
+                name="username"
+                id="username"
+                value=""
+              />
+            </div>
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter Password"
+                name="password"
+                id="password"
+                value=""
+              />
+            </div>
+            <div class="form-group">
+              <label for="path">Path</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter path name."
+                name="path"
+                id="path"
+                value=""
+              />
+            </div>
+            <div class="form-group">
+              <label id="cdn_url">CDN Url</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter Base url."
+                name="cdn_url"
+                id="cdn_url"
+                value=""
+              />
+            </div>
+          </div>
+          <div class="form-group common_form_check_box">
+            <label>Enabled? </label>
+            <!-- <p>Yes, files can be stored and retrieved using this service.</p> -->
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="enabled"
+                id="true"
+                value="true"
+              />
+              <label class="form-check-label" for="true">
+                Yes, files can be stored and retrieved using this service.
+              </label>
+            </div>
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="enabled"
+                value="false"
+                id="false"
+                checked
+              />
+              <label class="form-check-label" for="false">
+                No, this service is disabled.
+              </label>
+            </div>
+          </div>
+          <button id="submitbutton" class="btn btn-primary">Save</button>
+          <a href="/storage" class="btn btn-info">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('./partials/footer.ejs') %>
+
+<script>
+  $(document).ready(() => storageConfig());
+  const id = window.location.search.split("=")[1];
+  let selectedOption = null;
+  let storageType = null;
+  let responseData = null;
+
+  $("select[name='name']").change(() => {
+    const selected = $("select[name='name']").val();
+    storageType = selected;
+    handleFieldValue();
+    if (selectedOption) {
+      $(`#${selectedOption}`).hide();
+    }
+    switch (selected) {
+      case "amazon_s3":
+      case "digital_ocean_space":
+      case "wasabi_cloud_storage":
+        selectedOption = "amazon_s3";
+        $(`#${selectedOption}`).show();
+        break;
+      case "amazon_s3_compatible_storage":
+        selectedOption = selected;
+        $(`#${selectedOption}`).show();
+        break;
+      case "local_storage":
+        selectedOption = selected;
+        break;
+      case "virtual_file_system":
+        selectedOption = selected;
+        $(`#${selectedOption}`).show();
+        break;
+      default:
+        if (selectedOption) {
+          $(`#${selectedOption}`).hide();
+          selectedOption = null;
+        }
+        break;
+    }
+  });
+
+  function handleFieldValue() {
+    if (responseData) {
+      if (responseData.data.storage == storageType) {
+        handleStorageConfiguration(responseData);
+      } else {
+        const response = {
+          success: true,
+          data: {
+            storage: storageType,
+            credentials: {
+              accessKeyId: "",
+              secretAccessKey: "",
+              region: "",
+              bucket: "",
+              cdn_url: "",
+              endpoint_url: "",
+              remoteHost: "",
+              remotePort: "",
+              username: "",
+              password: "",
+              path: "",
+            },
+          },
+        };
+        handleStorageConfiguration(response);
+      }
+    }
+  }
+
+  $("#submitbutton").click((e) => {
+    e.preventDefault();
+    let enabled = $('input[name="enabled"]:checked').val();
+    enabled = enabled == "true" ? true : false;
+    if (!selectedOption) {
+      selectedOption = $("select[name='name']").val();
+      storageType = selectedOption;
+    }
+    switch (selectedOption) {
+      case "amazon_s3":
+        {
+          const amazon_s3Credentials = {
+            accessKeyId: $('#amazon_s3 input[name="accessKeyId"]').val(),
+            secretAccessKey: $(
+              '#amazon_s3 input[name="secretAccessKey"]'
+            ).val(),
+            region: $('#amazon_s3 input[name="region"]').val(),
+            bucket: $('#amazon_s3 input[name="bucket"]').val(),
+          };
+          const requiredValue = validateValues(amazon_s3Credentials);
+          if (requiredValue) {
+            toastNotification("warning", "required " + requiredValue);
+            return;
+          }
+          const cdn_url = $('#amazon_s3 input[name="cdn_url"]').val();
+          configStorage({
+            storage: storageType,
+            credentials: cdn_url
+              ? Object.assign(amazon_s3Credentials, {
+                  cdn_url: cdn_url,
+                })
+              : amazon_s3Credentials,
+            enabled: enabled,
+          });
+        }
+        break;
+      case "amazon_s3_compatible_storage":
+        {
+          const amazon_s3_compatible_storageCredentials = {
+            accessKeyId: $(
+              '#amazon_s3_compatible_storage input[name="accessKeyId"]'
+            ).val(),
+            secretAccessKey: $(
+              '#amazon_s3_compatible_storage input[name="secretAccessKey"]'
+            ).val(),
+            region: $(
+              '#amazon_s3_compatible_storage input[name="region"]'
+            ).val(),
+            bucket: $(
+              '#amazon_s3_compatible_storage input[name="bucket"]'
+            ).val(),
+            cdn_url: $(
+              '#amazon_s3_compatible_storage input[name="cdn_url"]'
+            ).val(),
+            endpoint_url: $(
+              '#amazon_s3_compatible_storage input[name="endpoint_url"]'
+            ).val(),
+          };
+          const requiredValue = validateValues(
+            amazon_s3_compatible_storageCredentials
+          );
+          if (requiredValue) {
+            toastNotification("warning", "required " + requiredValue);
+            return;
+          }
+          configStorage({
+            storage: storageType,
+            credentials: amazon_s3_compatible_storageCredentials,
+            enabled: enabled,
+          });
+        }
+        break;
+      case "local_storage":
+        {
+          configStorage({
+            storage: storageType,
+            credentials: null,
+            enabled: enabled,
+          });
+        }
+        break;
+      case "virtual_file_system":
+        {
+          const virtual_file_systemCredentials = {
+            remoteHost: $(
+              '#virtual_file_system input[name="remoteHost"]'
+            ).val(),
+            remotePort: $(
+              '#virtual_file_system input[name="remotePort"]'
+            ).val(),
+            username: $('#virtual_file_system input[name="username"]').val(),
+            password: $('#virtual_file_system input[name="password"]').val(),
+            path: $('#virtual_file_system input[name="path"]').val(),
+            cdn_url: $('#virtual_file_system input[name="cdn_url"]').val(),
+          };
+          const requiredValue = validateValues(virtual_file_systemCredentials);
+          if (requiredValue) {
+            toastNotification("warning", "required " + requiredValue);
+            return;
+          }
+          configStorage({
+            storage: storageType,
+            credentials: virtual_file_systemCredentials,
+            enabled: enabled,
+          });
+        }
+        break;
+      default:
+        break;
+    }
+  });
+
+  function validateValues(object) {
+    for (let key in object) {
+      if (!object[key]) {
+        return key;
+      }
+    }
+    return;
+  }
+
+  function configStorage(data) {
+    $.ajax({
+      type: "PUT",
+      url: `/storage`,
+      contentType: "application/json",
+      data: JSON.stringify({ id, ...data }),
+      success: (response) => {
+        toastNotification("success", response.message);
+        window.location.href = "/storage";
+      },
+      error: (error) => {
+        toastNotification("danger", error.responseJSON.message);
+      },
+    });
+  }
+
+  function storageConfig() {
+    $.ajax({
+      type: "GET",
+      url: `/get-storage-services?id=${id}`,
+      success: (response) => {
+        responseData = response;
+        $("select[name='name']").val(response.data.storage).change();
+        handleStorageConfiguration(response);
+      },
+      error: (error) => {
+        toastNotification("danger", error.responseJSON.message);
+        window.location.href = "/storage";
+      },
+    });
+  }
+
+  function handleStorageConfiguration(response) {
+    if (!response.success) return;
+    const { data } = response;
+    const credentials = data.credentials;
+    $(`input[name="enabled"][value=${data.enabled}]`).attr("checked", true);
+    switch (data.storage) {
+      case "amazon_s3":
+      case "digital_ocean_space":
+      case "wasabi_cloud_storage":
+        $('#amazon_s3 input[name="accessKeyId"]').val(credentials.accessKeyId);
+        $('#amazon_s3 input[name="secretAccessKey"]').val(
+          credentials.secretAccessKey
+        );
+        $('#amazon_s3 input[name="region"]').val(credentials.region);
+        $('#amazon_s3 input[name="bucket"]').val(credentials.bucket);
+        $('#amazon_s3 input[name="cdn_url"]').val(credentials.cdn_url);
+        break;
+      case "amazon_s3_compatible_storage":
+        $('#amazon_s3_compatible_storage input[name="accessKeyId"]').val(
+          credentials.accessKeyId
+        );
+        $('#amazon_s3_compatible_storage input[name="secretAccessKey"]').val(
+          credentials.secretAccessKey
+        );
+        $('#amazon_s3_compatible_storage input[name="region"]').val(
+          credentials.region
+        );
+        $('#amazon_s3_compatible_storage input[name="bucket"]').val(
+          credentials.bucket
+        );
+        $('#amazon_s3_compatible_storage input[name="cdn_url"]').val(
+          credentials.cdn_url
+        );
+        $('#amazon_s3_compatible_storage input[name="endpoint_url"]').val(
+          credentials.endpoint_url
+        );
+        break;
+      case "virtual_file_system":
+        $('#virtual_file_system input[name="remoteHost"]').val(
+          credentials.remoteHost
+        );
+        $('#virtual_file_system input[name="remotePort"]').val(
+          credentials.remotePort
+        );
+        $('#virtual_file_system input[name="username"]').val(
+          credentials.username
+        );
+        $('#virtual_file_system input[name="password"]').val(
+          credentials.password
+        );
+        $('#virtual_file_system input[name="path"]').val(credentials.path);
+        $('#virtual_file_system input[name="cdn_url"]').val(
+          credentials.cdn_url
+        );
+        break;
+      default:
+        break;
+    }
+  }
+</script>

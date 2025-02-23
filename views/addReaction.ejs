@@ -1,0 +1,99 @@
+<%- include('./partials/header.ejs') %>
+
+<div class="right-bar">
+  <h2 class="custom-heading custom-card">Add Reaction</h2>
+  <div class="custom-card">
+    <div class="row custom-form-section">
+      <div class="col-lg-6 col-md-12">
+        <form class="form">
+          <div>
+            <div class="form-group">
+              <label for="reactionName">Reaction Name</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter reaction name"
+                id="reactionName"
+                name="reactionName"
+                value=""
+              />
+              <input type="hidden" valud="" id="media" />
+            </div>
+          </div>
+          <div>
+            <div class="form-group">
+              <label for="inputfile">Reaction photo </label>
+              <input
+                type="file"
+                class="form-control"
+                placeholder="Select reaction to upload"
+                id="inputfile"
+                name="file"
+                value=""
+                accept="image/*"
+              />
+            </div>
+            <div class="form-group">
+              <ul class="upload-files-progress" id="uploadimages">
+                <li id="uploadimages_default" style="display: none">
+                  <div
+                    class="alert alert-warning text-center"
+                    role="alert"
+                    style="margin: 15px"
+                  >
+                    Please select file to upload.
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <button id="savefile" class="btn btn-primary" disabled>Save</button>
+          <a href="/reaction" class="btn btn-info">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('./partials/footer.ejs') %>
+
+<script src="/script/filemanager.js"></script>
+
+<script>
+  $("#savefile").click(async (e) => {
+    e.preventDefault();
+    const reactionName = $('input[name="reactionName"]').val();
+    if (!reactionName) {
+      toastNotification("warning", "Required Reaction name");
+      return;
+    }
+    $(".removefile").hide();
+    $("#savefile").prop("disabled", true);
+    const response = await uploadFile(files[0], "reaction", files[0].id);
+    if (!response.success) {
+      toastNotification("danger", "Error while uploading Image");
+      $("#savefile").prop("disabled", false);
+      return;
+    }
+    const data = {
+      name: reactionName,
+      media: response.data._id,
+    };
+    $.ajax({
+      url: "/add-reaction",
+      method: "POST",
+      data: data,
+      success: (response) => {
+        toastNotification("success", "Reaction Added Successfully");
+        timeoutRedirect("/reaction");
+      },
+      error: (error) => {
+        toastNotification(
+          "danger",
+          JSON.parse(error?.responseText)?.message || "Error !!"
+        );
+        $("#savefile").prop("disabled", false);
+      },
+    });
+  });
+</script>

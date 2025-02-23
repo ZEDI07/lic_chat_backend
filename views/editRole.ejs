@@ -1,0 +1,79 @@
+ <%- include('./partials/header.ejs') %>
+<div class="right-bar">
+  <h2 class="custom-heading custom-card">Edit Role</h2>
+  <div class="custom-card">
+    <div class="row custom-form-section">
+      <div class="col-lg-6 col-md-12">
+        <form class="form">
+          <% if(response && response.success){%> <% const data = response.data
+          %>
+          <input type="hidden" name="id" value="<%=data._id %>" />
+          <div class="form-group">
+            <label>Role ID</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Enter Id"
+              value="<%=data.roleId %>"
+              disabled
+            />
+            <small>Unique identifier of the Role</small>
+          </div>
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Role Name"
+              name="name"
+              id="name"
+              value="<%=data.name %>"
+            />
+            <small>Displayed Role Name</small>
+          </div>
+          <div class="form-group">
+            <label for="description">Description</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Description"
+              name="description"
+              id="description"
+              value="<%=data.description %>"
+            />
+            <small>Some description about the Role.</small>
+          </div>
+          <button id="saveButton" class="btn btn-primary">Save</button>
+          <button type="button" onclick="history.back()" class="btn btn-info">
+            Cancel
+          </button>
+          <% } %>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<%- include('./partials/footer.ejs') %>
+
+<script>
+  $("#saveButton").click((e) => {
+    e.preventDefault();
+    const data = {
+      id: $('input[name="id"]').val(),
+      name: $('input[name="name"]').val(),
+      description: $('input[name="description"]').val(),
+    };
+    $.ajax({
+      url: "/role-edit",
+      method: "POST",
+      data: data,
+      success: (response) => {
+        toastNotification("success", response.message);
+        window.location.href = `/role-profile?id=${data.id}`;
+      },
+      error: (error) => {
+        toastNotification("danger", error.responseJSON.message);
+      },
+    });
+  });
+</script>

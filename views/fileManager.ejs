@@ -1,0 +1,624 @@
+ <%- include('./partials/header.ejs') %>
+  <script src="/script/dateConverter.js"></script>
+  <div class="right-bar">
+    <h2 class="custom-heading custom-card">File Upload</h2>
+    <div class="custom-card">
+      <div class="upload-list-section">
+        <div class="upload-main-section">
+          <div class="upload-files-section">
+            <input type="file" id="inputfile" name="file" multiple accept="image/*, video/*" />
+            <div class="upload-files-icon">
+              <i class="fi fi-rs-cloud-upload"></i>
+            </div>
+            <p><b> Click to Upload </b></p>
+          </div>
+          <!-- <button
+          class="btn btn-primary"
+          id="savefile"
+          onclick="saveFile()"
+          disabled
+        >
+          Save
+        </button> -->
+        </div>
+        <ul class="upload-files-progress" id="uploadimages">
+          <li id="uploadimages_default">
+            <div class="alert alert-warning text-center" role="alert" style="margin: 15px">
+              Please select file to upload.
+            </div>
+          </li>
+        </ul>
+      </div>
+      <!-- <ul class="upload-files-progress">
+      <li>
+        <div class="upload-files-progress-left">
+          <img
+            src="https://demo.socialengine.com/public/core_file/0c/02/4755d9ae79f152d9657664284371731b.png"
+            alt="img upload"
+          />
+        </div>
+        <div class="upload-files-progress-right">
+          <p class="upload-files-progress-title">
+            <span> natural image upload in the house</span>
+            <strong><i class="fi fi-rs-cross-small"></i></strong>
+          </p>
+          <div class="progress">
+            <div
+              class="progress-bar progress-bar-striped progress-bar-animated"
+              role="progressbar"
+              aria-label="Default striped example"
+              style="width: 80%"
+              aria-valuenow="10"
+              aria-valuemin="0"
+              aria-valuemax="100"
+            ></div>
+          </div>
+          <p class="upload-files-progress-title">
+            <span>12.4 of 18.5 MB</span>
+            <strong>80%</strong>
+          </p>
+        </div>
+      </li>
+      <li>
+        <div class="upload-files-progress-left">
+          <img
+            src="https://demo.socialengine.com/public/core_file/0b/02/6ca8c5b34de805c17fd250c4996d96aa.jpg"
+            alt="img upload"
+          />
+        </div>
+        <div class="upload-files-progress-right">
+          <p class="upload-files-progress-title">
+            <span> image for the value of the lif thing are good </span>
+            <strong><i class="fi fi-rs-cross-small"></i></strong>
+          </p>
+          <div class="progress">
+            <div
+              class="progress-bar progress-bar-striped progress-bar-animated"
+              role="progressbar"
+              aria-label="Default striped example"
+              style="width: 20%"
+              aria-valuenow="10"
+              aria-valuemin="0"
+              aria-valuemax="100"
+            ></div>
+          </div>
+          <p class="upload-files-progress-title">
+            <span>15 of 50 MB</span>
+            <strong>20%</strong>
+          </p>
+        </div>
+      </li>
+      <li>
+        <div class="upload-files-progress-left">
+          <img
+            src="https://demo.socialengine.com/public/core_file/0a/02/6007e83b39106d4532469bc8ef8dd37d.jpg"
+            alt="img upload"
+          />
+        </div>
+        <div class="upload-files-progress-right">
+          <p class="upload-files-progress-title">
+            <span
+              >who is the value in the life thigs are good best of the life
+            </span>
+            <strong><i class="fi fi-rs-cross-small"></i></strong>
+          </p>
+          <div class="progress">
+            <div
+              class="progress-bar progress-bar-striped progress-bar-animated"
+              role="progressbar"
+              aria-label="Default striped example"
+              style="width: 50%"
+              aria-valuenow="10"
+              aria-valuemin="0"
+              aria-valuemax="100"
+            ></div>
+          </div>
+          <p class="upload-files-progress-title">
+            <span>100.4 of 200.5 MB</span>
+            <strong>50%</strong>
+          </p>
+        </div>
+      </li>
+    </ul> -->
+      <div class="user-profile-deatils files_upload_table">
+        <div class="user-profile-deatils-inner">
+          <div class="section-header">
+            <div class="files-upload-listing-grid">
+              <div class="files-upload-listing-grid-right">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home-tab-pane"
+                      type="button" role="tab" aria-controls="home-tab-pane" aria-selected="true">
+                      <i class="fi fi-rs-list"></i>
+                    </button>
+                  </li>
+                  <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane"
+                      type="button" role="tab" aria-controls="profile-tab-pane" aria-selected="false">
+                      <i class="fi fi-rs-grid"></i>
+                    </button>
+                  </li>
+                </ul>
+              </div>
+              <div class="files-upload-listing-grid-left">
+                <!-- <p>Sort By</p> -->
+                <select class="form-select" id="selectType" onchange="search()">
+                  <option value="0">Type</option>
+                  <% if(type) { %>
+                    <% for(let i of type) { %>
+                      <option value="<%=i%>">
+                        <%= i.toUpperCase() %>
+                      </option>
+                      <% } %>
+                        <%} %>
+                          <!-- <option value="png">Png</option>
+                <option value="gif">GIF</option> -->
+                </select>
+              </div>
+              <!-- <div class="files-upload-listing-grid-left">
+              <select class="form-select" id="selectDate" onchange="search()">
+                <option value="0">All Dates</option>
+                <option value="1">Jan</option>
+                <option value="2">Feb</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">JUNE</option>
+                <option value="7">JULY</option>
+                <option value="8">August</option>
+                <option value="9">Sept</option>
+                <option value="10">Oct</option>
+                <option value="11">Nov</option>
+                <option value="12">Dec</option>
+              </select>
+              <input
+                type="text"
+                class="form-control"
+                name="daterange"
+                value=""
+                placeholder="01/01/2022 - 01/12/2023"
+                id="selectDate"
+                onchange=""
+                autocomplete="off"
+              />
+            </div> -->
+            </div>
+            <div class="custom-form-section section-header-form">
+              <div class="section-header-form-item _search">
+                <i class="fi fi-rs-search"></i>
+                <input type="text" class="form-control" placeholder="Search" id="searchInput" oninput="search()" />
+              </div>
+              <!-- <button type="submit"><i class="fi fi-rs-search"></i></button> -->
+            </div>
+          </div>
+          <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab"
+              tabindex="0">
+              <div class="table-responsive">
+                <table class="table table-striped" id="fileTable"></table>
+                <div id="loader" class="loader-overlay loader-main">
+                  <div class="loader">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="delete-selected-btn">
+                <button id="deleteMultiFileButton" onclick="deleteMultiFileButton()" class="btn btn-primary" disabled>
+                  Delete Selected
+                </button>
+              </div>
+            </div>
+            <div class="tab-pane fade" id="profile-tab-pane" role="tabpanel" aria-labelledby="profile-tab" tabindex="0">
+              <ul class="files-upload-grid-view" id="tableGridView"></ul>
+              <div id="loader" class="loader-overlay loader-main">
+                <div class="loader">
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>
+              </div>
+              <div class="delete-selected-btn">
+                <button onclick="deleteMultiGridFileButton()" class="btn btn-primary" disabled>
+                  Delete Selected
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav class="paginaton-section">
+        <ul class="pagination" id="pagination"></ul>
+      </nav>
+    </div>
+  </div>
+
+  <%- include('./partials/footer.ejs') %>
+
+    <!-- Delete Modal -->
+    <div class="modal fade delete-modal" id="deleteModel" tabindex="-1" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="delete-content">
+            <img src="images/remove.png" alt="delete img" class="delete-img" />
+            <h3>Are you sure?</h3>
+            <p>
+              Do you want really want do delete this data <br />
+              this file cannot be find
+            </p>
+            <div class="delete-content-btn">
+              <button type="button" class="btn btn-danger" id="confirmDeleteFile" onClick="">
+                Delete
+              </button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/script/multipleFileManager.js"></script>
+
+    <script>
+      const requests = {};
+      $(document).ready(() => getDataTable(1));
+
+      let page = 1;
+      const pageSize = 10;
+
+      function search() {
+        return new Promise((res, rej) => {
+          const value = $("#searchInput").val();
+          const selectedType = $("#selectType").val();
+          const selectedDate = $("#selectDate").val();
+          const key = "originalname";
+          let requestUrl = `/get-file-list?page=${page - 1}&limit=${pageSize}`;
+          if (value) {
+            requestUrl += `&key=${key}&value=${value}`;
+          }
+          if (selectedType != 0) {
+            requestUrl += `&type=${selectedType}`;
+          }
+          // if (selectedDate != 0) {
+          //   requestUrl += `&selectedDate=${selectedDate}`;
+          // }
+          $(".loader-main").css("display", "flex")
+          $.ajax({
+            type: "GET",
+            url: requestUrl,
+            success: (response) => {
+              handleFileList(response), res();
+              $(".loader-main").css("display", "none")
+            },
+            error: (error) => {
+              rej();
+              $(".loader-main").css("display", "none")
+            },
+          });
+        });
+      }
+
+      function getDataTable(pageno) {
+        $(".loader-main").css("display", "flex")
+        return new Promise((res, rej) => {
+          page = +pageno || page;
+          $.ajax({
+            type: "GET",
+            url: `/get-file-list?page=${page - 1}&limit=${pageSize}`,
+            success: (response) => {
+              handleFileList(response), res();
+              $(".loader-main").css("display", "none")
+            },
+            error: (error) => {
+              rej();
+              $(".loader-main").css("display", "none")
+            },
+          });
+        });
+      }
+
+      async function handleFileList(response) {
+        if (response.success) {
+          if (page > 1 && response.data.count && !response.data.files.length) {
+            page--;
+            await getDataTable(page);
+            return;
+          }
+          const paginationContent = getPaginationContent(
+            response.data.count,
+            pageSize,
+            page
+          );
+          const tableContent = getFileTableContent(
+            response.data.files,
+            page,
+            pageSize
+          );
+          const gridContent = getFileTableGridContent(response.data.files);
+          $("#fileTable").html(tableContent);
+          $("#pagination").html(paginationContent);
+          $("#tableGridView").html(gridContent);
+        }
+      }
+
+      function getFileTableGridContent(files) {
+        if (!files.length) {
+          const content = `<li><div class="alert alert-warning text-center" role="alert" style="margin:15px;">
+        No Files found.
+        </div></li>`;
+          return content;
+        }
+        let content = "";
+        for (let file = 0; file < files.length; file++) {
+          const data = files[file];
+          content += `<li>
+                <div class="files-upload-grid-inner">
+                  <div class="files-upload-grid-inner-top">
+                    <p>
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        name="gridFileSelected"
+                        id="${data._id}"
+                      />
+                    </p>
+                    <div class="files-upload-grid-inner-right dropstart">
+                      <a
+                        href="javascript:void(0)"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                      >
+                        <i class="fi fi-rs-menu-dots-vertical"></i>
+                      </a>
+                      <ul class="dropdown-menu">
+                        <li>
+                          <a class="dropdown-item" href="${data.url}" target="_blank">Preview</a>
+                        </li>
+                        <li>
+                          <a class="dropdown-item" href="${data.url}" download="${data.originalname}">Download</a>
+                        </li>
+                        <li>
+                          <a class="dropdown-item" onClick="copytoclipboard('${data.url}')">Copy</a>
+                        </li>
+                        <li>
+                          <a
+                            class="dropdown-item"
+                            href="javascript:void(0)"
+                            onclick="deleteButton('${data._id}')"
+                            data-bs-toggle="modal"
+                            data-bs-target="#exampleModal"
+                            class="delete-btn"
+                            >Delete</a
+                          >
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="files-upload-grid-inner-mid">
+                    <img
+                      src="${data.url}"
+                      alt="img"
+                    />
+                  </div>
+                  <div class="files-upload-grid-inner-title">
+                    <p>${data.originalname}</p>
+                  </div>
+                </div>
+              </li>`;
+        }
+        return content;
+      }
+
+      // Group Page Function >>>>>>
+      function getFileTableContent(files, pageno, pageSize) {
+        if (!files.length) {
+          const content = `<div class="alert alert-warning text-center" role="alert" style="margin:15px;">
+        No Files found.
+        </div>`;
+          return content;
+        }
+        let tableContent = `<thead>
+                  <tr>
+                    <th>
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        name="selectall"
+                        onchange="selectAll()"
+                        id="selectall"
+                      />
+                      <label class="form-check-label" for="flexCheckDefault"
+                        >File Name</label
+                      >
+                    </th>
+                    <th class="text-center">File Size</th>
+                    <th>Date Added</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>`;
+        for (let file = 0; file < files.length; file++) {
+          const data = files[file];
+          const content = `<tr>
+                    <td>
+                      <div class="upload-table-file">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          onclick="checkboxclick()"
+                          name="fileSelected"
+                          id="${data._id}"
+                        />
+                        <img
+                          src="${data.url}"
+                          alt="img upload"
+                          class="files_upload_table_img"
+                        />
+                        <label class="form-check-label" for="flexCheckDefault"
+                          >${data.originalname}</label
+                        >
+                      </div>
+                    </td>
+                    <td class="text-center">${(data.size / 1024).toFixed(
+            2
+          )} kb</td>
+                    <td>${dateConverter(data.createdAt)}</td>
+                    <td>
+                      <div class="action-button">
+                        <a 
+                        href="${data.url}" 
+                        target="_blank"
+                        class="delete-btn"
+                        >
+                          <i class="fi fi-rs-eye"></i>
+                          <span class="tooltiptext">View</span>
+                        </a>
+                        <a
+                          href="${data.url}"
+                          download="${data.originalname}"
+                          target="_blank"
+                          class="delete-btn"
+                        >
+                          <i class="fi fi-rs-download"></i>
+                          <span class="tooltiptext">Download</span>
+                        </a>
+                        <a class="delete-btn" onClick="copytoclipboard('${data.url
+            }')">
+                          <i class="fi fi-rs-copy-alt"></i>
+                          <span class="tooltiptext">Copy</span>
+                        </a>
+                        <a
+                          class="delete-btn"
+                          onclick="deleteButton('${data._id}')"
+                        >
+                          <i class="fi fi-rs-trash"></i>
+                          <span class="tooltiptext">Delete</span>
+                        </a>
+                      </div>
+                    </td>
+                  </tr>`;
+          tableContent += content;
+        }
+        tableContent += `</tbody>`;
+        return tableContent;
+      }
+
+      function checkboxclick() {
+        const selected = $("input[name=fileSelected]:checked");
+        if (selected.length > 0) {
+          $("#deleteMultiFileButton").prop("disabled", false);
+        } else {
+          $("#deleteMultiFileButton").prop("disabled", true);
+        }
+      }
+
+      function deleteButton(id) {
+        $("#confirmDeleteFile").attr("onClick", `deleteFile('${id}')`);
+        $("#deleteModel").modal("show");
+      }
+
+      function deleteFile(id) {
+        $("#deleteModel").modal("hide");
+        updateFileStatus(id, false, getDataTable);
+      }
+
+      function deleteMultiFileButton() {
+        const selected = $("input[name=fileSelected]:checked");
+        const list = [];
+        for (let i = 0; i < selected.length; i++) {
+          list.push(selected[i].id);
+        }
+        $("#confirmDeleteFile").attr(
+          "onClick",
+          `deleteMultiFile(${JSON.stringify(list)})`
+        );
+        $("#deleteModel").modal("show");
+      }
+
+      function deleteMultiGridFileButton() {
+        const selected = $("input[name=gridFileSelected]:checked");
+        const list = [];
+        for (let i = 0; i < selected.length; i++) {
+          list.push(selected[i].id);
+        }
+        $("#confirmDeleteFile").attr(
+          "onClick",
+          `deleteMultiFile(${JSON.stringify(list)})`
+        );
+        $("#deleteModel").modal("show");
+      }
+
+      async function deleteMultiFile(list) {
+        $("#deleteModel").modal("hide");
+        for (let file = 0; file < list.length; file++) {
+          await updateFileStatus(list[file], false, null);
+        }
+        getDataTable();
+        const element = $("#selectall").is(":checked");
+        if (element) $("#selectall").prop("checked", false);
+        checkboxclick();
+      }
+
+      function selectAll() {
+        const element = $("#selectall").is(":checked");
+        if (element) {
+          const markCheked = $("input[name=fileSelected]");
+          for (let i = 0; i < markCheked.length; i++) {
+            $(markCheked[i]).prop("checked", true);
+          }
+        } else {
+          const markCheked = $("input[name=fileSelected]");
+          for (let i = 0; i < markCheked.length; i++) {
+            $(markCheked[i]).prop("checked", false);
+          }
+        }
+        checkboxclick();
+      }
+
+      function copytoclipboard(text) {
+        navigator.clipboard.writeText(text);
+      }
+
+      // function to delete file from storage
+      function updateFileStatus(id, status, refreshFunction) {
+        return new Promise((res, rej) => {
+          $.ajax({
+            type: "POST",
+            url: "/delete-file",
+            data: { id: id, status: status },
+            success: (response) => {
+              refreshFunction && refreshFunction();
+              toastNotification("success", "File Deleted Successfully.");
+              res(response);
+            },
+            error: (error) => {
+              toastNotification("danger", error.responseJSON.message);
+              rej(error);
+            },
+          });
+        });
+      }
+
+      $(function () {
+        $('input[name="daterange"]').daterangepicker(
+          {
+            opens: "left",
+          },
+          function (start, end, label) {
+            console.log(
+              "A new date selection was made: " +
+              start.format("YYYY-MM-DD") +
+              " to " +
+              end.format("YYYY-MM-DD")
+            );
+          }
+        );
+      });
+    </script>

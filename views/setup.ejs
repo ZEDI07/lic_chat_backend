@@ -1,0 +1,108 @@
+ <!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/uicons-regular-straight.css" />
+  <title>::Login::</title>
+</head>
+
+<body>
+  <%- include('./partials/toasts.ejs') %>
+
+    <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
+    <script src="https://code.jquery.com/jquery-3.7.0.js"
+      integrity="sha256-JlqSTELeR4TLqP0OG9dxM7yDPqX1ox/HfgiSLBj8+kM=" crossorigin="anonymous"></script>
+    <script src="/script/index.js"></script>
+    <div class="install">
+      <div class="install-wrapper">
+        <div class="install-main">
+          <div class="install-logo text-center">
+            <!-- <img src="/images/logo.png" alt="img" /> -->
+          </div>
+          <!--Step 1-->
+          <div class="install-step">
+            <h3 class="text-center">Setup</h3>
+            <p class="text-center">
+              Please fill below fields to complete setup.
+            </p>
+            <div class="install-form">
+              <form class="form">
+                <div class="row g-3">
+                  <div class="col-md-12">
+                    <label for="siteurl" class="form-label">SE Site URL</label>
+                    <input type="text" class="form-control" name="siteurl" id="siteurl" />
+                  </div>
+                  <div class="col-md-12">
+                    <label for="adminpassword" class="form-label">Admin Password</label>
+                    <input type="password" class="form-control" id="adminpassword" name="adminpassword" />
+                    <span toggle="#adminpassword" id="adminpasswordtoggle"
+                      class="install-toggle-password fi fi-rs-crossed-eye"></span>
+                  </div>
+                  <div class="col-md-12">
+                    <label for="adminconfirmpassword" class="form-label">Confirm Admin Password</label>
+                    <input type="password" class="form-control" id="adminconfirmpassword" name="adminconfirmpassword" />
+                    <span toggle="#adminconfirmpassword" id="confirmadminpaneltoggle"
+                      class="install-toggle-password fi fi-rs-crossed-eye"></span>
+                  </div>
+                  <div class="col-md-12 form-btn">
+                    <button id="submitbutton" class="btn btn-primary">
+                      Submit
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      $(".install-toggle-password").click(function () {
+        $(this).toggleClass("fi-rs-eye");
+        var input = $($(this).attr("toggle"));
+        if (input.attr("type") == "password") {
+          input.attr("type", "text");
+        } else {
+          input.attr("type", "password");
+        }
+      });
+    </script>
+    <script>
+      $("#submitbutton").click((e) => {
+        e.preventDefault();
+        console.log("inside submit button");
+        const password = $("input[name='adminpassword']").val();
+        const confirmPassowrd = $("input[name='adminconfirmpassword']").val();
+        if (password !== confirmPassowrd) {
+          toastNotification("danger", "Password and confirm password doesn't match");
+          return;
+        }
+        const data = {
+          domain: $("input[name='siteurl']").val(),
+          agora: false,
+          password: password,
+        };
+        $.ajax({
+          method: "POST",
+          url: "/setup",
+          contentType: "application/json",
+          data: JSON.stringify(data),
+          success: (response) => {
+            toastNotification("success", response.message);
+            window.location.href = "/";
+          },
+          error: (error) => {
+            toastNotification("danger", error.responseJSON.message);
+          },
+        });
+      });
+    </script>
+</body>
+
+</html>

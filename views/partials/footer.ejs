@@ -1,0 +1,27 @@
+
+ 
+ 
+ <footer>
+    <div class="footer_inner">
+      <!-- <span>Copyright © 2023 <a href="#!">Ahead Websofttech</a>. Designed by <a href="javascript:void(0)">Ahead</a> All rights reserved.</span> -->
+    </div>
+  </footer>
+    <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
+    <!-- <script src="js/jquery.slim.min.js"></script> -->
+    <!-- <script src="js/bootstrap.bundle.min.js"></script> -->
+    <script>
+       $('.navbar-toggler').on('click', function(){
+        $('.menu-left-side ').toggleClass('open');
+       });
+       $('.navbar-toggler').on('click', function(){
+        $('body ').toggleClass('menu-closed');
+       });
+       $('.cross-button').on('click', function(){
+        $('.menu-left-side ').removeClass('open');
+       }); 
+       $(function () {
+        $('[data-bs-toggle="tooltip"]').tooltip();
+      });
+    </script>
+  </body>
+</html>

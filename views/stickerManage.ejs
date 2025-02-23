@@ -1,0 +1,154 @@
+ <%- include('./partials/header.ejs') %>
+
+  <div class="right-bar">
+    <h2 class="custom-heading custom-card">Manage Stickers</h2>
+    <div class="custom-card">
+      <div class="user-profile-deatils">
+        <div class="user-profile-deatils-inner">
+          <div class="section-header">
+            <a href="/sticker-add?id=<%=id%>" class="add_import"><i class="fi fi-rs-plus"></i></a>
+            <div class="custom-form-section section-header-form">
+              <input type="text" class="form-control" placeholder="Search" name="search" id="searchInput"
+                oninput="search()" />
+              <i class="fi fi-rs-search"></i>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-striped" id="groupTable"></table>
+            <div id="loader" class="loader-overlay loader-main">
+              <div class="loader">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('./partials/footer.ejs') %>
+    <!-- Delete Modal -->
+    <div class="modal fade delete-modal" id="deleteModel" tabindex="-1" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="delete-content">
+            <img src="images/remove.png" alt="delete img" class="delete-img" />
+            <h3>Are you sure?</h3>
+            <p id="deleteConfirmatinMessage"></p>
+            <div class="delete-content-btn">
+              <button type="button" class="btn btn-danger" id="confirmDeleteSticker" onClick="">
+                Delete
+              </button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      $(document).ready(() => getDataTable());
+
+      function getDataTable(pageno) {
+
+        return new Promise((res, rej) => {
+          $(".loader-main").css("display", "flex")
+          $.ajax({
+            type: "GET",
+            url: `/pack-sticker?id=<%=id%>`,
+            success: (response) => {
+              handleStickerList(response);
+              res();
+              $(".loader-main").css("display", "none")
+
+            },
+            error: (error) => {
+              rej();
+              $(".loader-main").css("display", "none")
+            },
+          });
+        });
+      }
+
+      // Group Page Function >>>>>>
+      function getGroupTableContent(stickers) {
+        let tableContent = `<thead>
+              <tr>
+                <th>Sr.</th>
+                <th>Photo</th>
+                <th>Category</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>`;
+        for (let sticker = 0; sticker < stickers.length; sticker++) {
+          const data = stickers[sticker];
+          const content = `<tr>
+          <td> ${sticker + 1} </td>
+          <td>
+              <img src=${data.url} class="tabel-user-img">
+          </td>
+          <td >${data.category.map((ele) => ele.name) || ""}</td>
+          <td>
+              <div class="action-button">
+                  <a href="/sticker-edit?id=${data._id
+            }&packId=<%=id%>" data-bs-toggle="tooltip" data-bs-placement="top"
+                      data-bs-title="Edit"> <i class="fi fi-rs-pencil"></i></a>
+                      <a href="javascript:void(0)" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Delete"><i class="fi fi-rs-trash" onClick="deleteButton(this.id)" id="${data._id
+            }"></i></a>
+              </div>
+          </td>
+      </tr>`;
+          tableContent += content;
+        }
+        tableContent += `</tbody>`;
+        return tableContent;
+      }
+
+      async function handleStickerList(response) {
+        if (response.success) {
+          if (!response.data.length) {
+            const content = `<div class="alert alert-warning text-center" role="alert" style="margin:15px;">
+          No Sticker found.
+          </div>`;
+            $("#groupTable").html(content);
+            $("#pagination").html("");
+            return;
+          }
+          let tableContent = getGroupTableContent(response.data);
+          $("#groupTable").html(tableContent);
+        }
+      }
+
+      function deleteButton(id) {
+        $("#deleteConfirmatinMessage").html(
+          `You want to delete this sticker from your chat application? Once deleted, it will not be recoverable.`
+        );
+        $("#confirmDeleteSticker").attr("onClick", `deleteSticker('${id}')`);
+        $("#deleteModel").modal("show");
+      }
+
+      function deleteSticker(id) {
+        $("#deleteModel").modal("hide");
+        $.ajax({
+          url: "/sticker-delete",
+          method: "POST",
+          data: {
+            id: id,
+          },
+          success: (response) => {
+            toastNotification("success", "Sticker Deleted Successfully");
+            getDataTable();
+          },
+          error: (error) => {
+            toastNotification("danger", error.responseJSON.message);
+          },
+        });
+      }
+    </script>

@@ -1,0 +1,98 @@
+ <!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/uicons-regular-straight.css" />
+  <title>::Login::</title>
+</head>
+
+<body>
+  <%- include('./partials/toasts.ejs') %>
+    <div class="login">
+      <div class="row">
+        <div class="col-lg-7 login-left-main">
+          <div class="login-left">
+            <img src="/images/login.svg" alt="img" />
+          </div>
+        </div>
+        <div class="col-lg-5 login-right-main">
+          <div class="login-right">
+            <div class="logo-login">
+              <a href="javascript:void(0)">
+                <!-- <img src="/images/logo.png" alt="img" /> -->
+              </a>
+            </div>
+            <h3>Welcome to Chat! 👋</h3>
+            <p>Please sign-in to your account and start the adventure</p>
+            <div class="custom-form-section">
+              <% if(message){%>
+                <p style="color: red">
+                  <%=message%>
+                </p>
+                <%} %>
+                  <form class="form">
+                    <div class="form-group">
+                      <label id="email">Email address</label>
+                      <input type="email" name="email" id="email" class="form-control" placeholder="Enter Email" />
+                    </div>
+                    <div class="form-group">
+                      <label for="password-field">Password</label>
+                      <input id="password-field" type="password" name="password" class="form-control"
+                        placeholder="Enter Password" />
+                      <span toggle="#password-field" class="toggle-password fi fi-rs-eye"></span>
+                      <a href="/forget-password" class="forgot-password">
+                        Forgot Password?
+                      </a>
+                    </div>
+                    <button id="submitbutton" class="btn btn-primary">Login</button>
+                  </form>
+            </div>
+            <!-- <p class="create-link">New on our platform? <a href="register.html">Create an account </a></p> -->
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
+    <script src="https://code.jquery.com/jquery-3.7.0.js"
+      integrity="sha256-JlqSTELeR4TLqP0OG9dxM7yDPqX1ox/HfgiSLBj8+kM=" crossorigin="anonymous"></script>
+    <script src="/script/index.js"></script>
+    <script>
+      $(".toggle-password").click(function () {
+        $(this).toggleClass("crossed-eye");
+        var input = $($(this).attr("toggle"));
+        if (input.attr("type") == "password") {
+          input.attr("type", "text");
+        } else {
+          input.attr("type", "password");
+        }
+      });
+      $("#submitbutton").click((e) => {
+        e.preventDefault();
+        const data = {
+          email: $("input[name='email']").val(),
+          password: $("input[name='password']").val(),
+        };
+        $.ajax({
+          method: "POST",
+          url: "/login",
+          contentType: "application/json",
+          data: JSON.stringify(data),
+          success: (response) => {
+            toastNotification("success", response.message);
+            window.location.href = "/";
+          },
+          error: (error) => {
+            toastNotification("danger", error.responseJSON.message);
+          },
+        });
+      });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,160 @@
+
+ 
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8" />
+  <title>::Dashboard::</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="/css/daterangepicker.css" media="all" />
+  <link rel="stylesheet" href="/css/select2.min.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/uicons-regular-straight.css" />
+
+  <script src="https://code.jquery.com/jquery-3.7.0.js" integrity="sha256-JlqSTELeR4TLqP0OG9dxM7yDPqX1ox/HfgiSLBj8+kM="
+    crossorigin="anonymous"></script>
+  <script src="/js/bootstrap.bundle.min.js"></script>
+  <script src="/js/daterangepicker.js"></script>
+  <script src="/js/moment.js"></script>
+  <script src="/js/select2.min.js"></script>
+  <script src="/script/index.js"></script>
+</head>
+<style>
+  .btn-back {
+    margin-left: 400%;
+    border-radius: 10%;
+  }
+</style>
+
+<body>
+  <%- include('./toasts.ejs') %>
+    <div class="menu-left-side">
+      <ul class="navbar-top">
+        <li>
+          <a href="/user">
+            <!-- <img src="/images/dashboard-logo.png" alt="img" class="logo" /> -->
+            <!-- <img src="/images/logo-icon.png" alt="img" class="logo_icon" /> -->
+          </a>
+        </li>
+        <li class="cross-button">
+          <a href="javascript:void(0)"> <i class="fi fi-rs-cross"></i></a>
+        </li>
+      </ul>
+      <ul class="navigation-menu" id="navigation-menu">
+        <li>
+          <a href="/credentials" class="navroutes">
+            <i class="fi fi-rs-user"></i>
+            <span>Api Credentials</span>
+          </a>
+        </li>
+        <li>
+          <a href="/user#active-users" class="navroutes">
+            <i class="fi fi-rs-user"></i>
+            <span>Users</span>
+          </a>
+        </li>
+        <li>
+          <a href="/group" class="navroutes">
+            <i class="fi fi-rs-users-alt"></i>
+            <span>Groups</span>
+          </a>
+        </li>
+        <li>
+          <a href="/message" class="navroutes">
+            <i class="fi fi-rs-comment-dots"></i>
+            <span>Message</span>
+          </a>
+        </li>
+        <li>
+          <a data-bs-toggle="collapse" data-bs-target="#collapseOne" class="sub-menu collapsed" id="setting-sub-menu">
+            <i class="fi fi-rs-copy"></i>
+            <span>Settings</span>
+          </a>
+          <ul id="collapseOne" class="collapse submenu-list">
+            <li>
+              <a href="/general-chat-setting" class="navroutes" name="setting-sub-menu">
+                General Chat Setting</a>
+            </li>
+            <li>
+              <a href="/storage" class="navroutes" name="setting-sub-menu">
+                Storage Settings</a>
+            </li>
+            <li>
+              <a href="/third-party-integration" class="navroutes" name="setting-sub-menu">
+                Third Party Integration</a>
+            </li>
+            <li>
+              <a href="/reaction" class="navroutes" name="setting-sub-menu">Manage Reactions</a>
+            </li>
+            <li>
+              <a href="/sticker" class="navroutes" name="setting-sub-menu">Manage Stickers</a>
+            </li>
+            <li>
+              <a href="/wallpaper" class="navroutes" name="setting-sub-menu">Manage Wallpapers</a>
+            </li>
+            <li>
+              <a href="/language" class="navroutes" name="setting-sub-menu">Manage language</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="/role" class="navroutes">
+            <i class="fi fi-rs-dice-d10"></i>
+            <span>Role</span>
+          </a>
+        </li>
+        <li>
+          <a href="/filemanager" class="navroutes">
+            <i class="fi fi-rs-folder-upload"></i>
+            <span>File Manager</span>
+          </a>
+        </li>
+        <li>
+          <a href="/report" class="navroutes">
+            <i class="fi fi-rs-flag"></i>
+            <span>Reports</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="header-top-rightbar">
+      <ul class="menu-toggler">
+        <li>
+          <a href="javascript:void(0)" class="navbar-toggler">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+              <path d="M4 18H10" stroke="#000000" stroke-width="2" stroke-linecap="round" />
+              <path d="M4 12L16 12" stroke="#000000" stroke-width="2" stroke-linecap="round" />
+              <path d="M4 6L20 6" stroke="#000000" stroke-width="2" stroke-linecap="round" />
+            </svg>
+          </a>
+        </li>
+      </ul>
+      <ul class="header-profile">
+        <li>
+          <a href="javascript:void(0)" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="<%= user.avatar %>" alt="user_image" id="user-image" />
+          </a>
+          <div class="dropdown-menu">
+            <div class="header-user-info">
+              <h6 id="user-name">
+                <%= user.name%>
+              </h6>
+              <p id="user-designation">Developer</p>
+            </div>
+            <a class="dropdown-item" href="/user-profile">
+              <i class="fi fi-rs-user"></i> My Profile</a>
+            <!-- <a class="dropdown-item" href="#"> <i class="fi fi-rs-pencil"></i> Edit Profile</a>
+          <a class="dropdown-item" href="#"> <i class="fi fi-rs-settings"></i> Account Settings</a> -->
+            <a class="dropdown-item" href="/logout">
+              <i class="fi fi-rs-sign-out-alt"></i> Logout</a>
+          </div>
+        </li>
+      </ul>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,16 @@
+# Node Modules
+node_modules
+
+# env
+.env
+
+# package-lock file
+package-lock.json
+pnpm-lock.yaml
+
+#upload file
+public/uploads/*
+
+# language file
+server/locales/*
+!server/locales/en

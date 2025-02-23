@@ -1,0 +1,172 @@
+ <%- include('./partials/header.ejs') %>
+  <div class="right-bar">
+    <h2 class="custom-heading custom-card">Edit Language</h2>
+    <div class="custom-card">
+      <div class="user-profile-deatils">
+        <div class="user-profile-deatils-inner">
+          <div class="section-header">
+            <h5 id="languageName"></h5>
+            <div class="custom-form-section section-header-form">
+              <input type="text" class="form-control" placeholder="Search" name="search" id="searchInput"
+                oninput="search()" />
+              <i class="fi fi-rs-search"></i>
+            </div>
+          </div>
+          <input type="hidden" id="id" value="<%=id%>" />
+          <div class="table-responsive" id="groupTable">
+            <table class="table table-striped"></table>
+          </div>
+        </div>
+      </div>
+      <nav class="paginaton-section">
+        <ul class="pagination" id="pagination"></ul>
+      </nav>
+      <button id="submitbutton" class="btn btn-primary">Save</button>
+      <a href="/language" class="btn btn-info">Back</a>
+    </div>
+  </div>
+
+  <%- include('./partials/footer.ejs') %>
+    <!-- Delete Modal -->
+    <div class="modal fade delete-modal" id="deleteModel" tabindex="-1" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="delete-content">
+            <img src="images/remove.png" alt="delete img" class="delete-img" />
+            <h3>Are you sure?</h3>
+            <p id="deleteConfirmatinMessage"></p>
+            <div class="delete-content-btn">
+              <button type="button" class="btn btn-danger" id="confirmDeleteGroup" onClick="">
+                Delete
+              </button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      $(document).ready(() => getDataTable(1));
+
+      let page = 1;
+      const pageSize = 20;
+      let timer = 0;
+
+      function search() {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          let value = $("#searchInput").val();
+          const key = "name";
+          console.log("value>>", value)
+          if (!value) {
+            getDataTable();
+            return;
+          }
+          page = 1;
+          $.ajax({
+            type: "GET",
+            url: `/search-language-key?id=<%=id%>&search=${value}&page=${page - 1
+              }&limit=${pageSize}`,
+            success: (response) => {
+              handleLanguageKeys(response);
+            },
+            error: (error) => {
+              console.log("error", error);
+              handleLanguageKeys({ success: true, data: [], count: 0 });
+            },
+          });
+        }, 1000);
+      }
+
+      function getDataTable(pageno) {
+        return new Promise((res, rej) => {
+          page = +pageno || page;
+          $.ajax({
+            type: "GET",
+            url: `/edit-language?id=<%=id%>&page=${page - 1}&limit=${pageSize}`,
+            success: (response) => {
+              handleLanguageKeys(response);
+              res();
+            },
+            error: (error) => {
+              rej();
+            },
+          });
+        });
+      }
+
+      // Group Page Function >>>>>>
+      function getBodyContent(keys, pageno, pageSize) {
+        let tableContent = "";
+        for (let key = 0; key < keys.length; key++) {
+          const data = keys[key];
+          const content = `<div style="padding:10px">
+            <textarea class="form-control" name="translations" id="${data[0]}" style="height:30px">${data[1]}</textarea>
+            <small>${data[0]}</small>
+            </div>`;
+          tableContent += content;
+        }
+        return tableContent;
+      }
+
+      async function handleLanguageKeys(response) {
+        if (response.success) {
+          $("#languageName").html(
+            `Language >> ${response.language.name} [${response.language.key}]`
+          );
+          if (page > 1 && response.count && !response.data.length) {
+            page--;
+            await getDataTable(page);
+            return;
+          }
+          if (!response.count) {
+            $("#submitbutton").prop("disabled", true);
+            const content = `<div class="alert alert-warning text-center" role="alert" style="margin:15px;">
+        No Content found.
+        </div>`;
+            $("#groupTable").html(content);
+            $("#pagination").html("");
+            return;
+          }
+          const paginationContent = getPaginationContent(
+            response.count,
+            pageSize,
+            page
+          );
+          let tableContent = getBodyContent(response.data, page, pageSize);
+          $("#groupTable").html(tableContent);
+          $("#pagination").html(paginationContent);
+        }
+      }
+
+      $("#submitbutton").click(() => {
+        const textFields = $("textarea[name='translations']");
+        const languageData = {};
+        for (let text of textFields) {
+          const key = $(text).attr("id");
+          const value = $(text).val();
+          languageData[key] = value;
+        }
+        $.ajax({
+          url: "/edit-language",
+          method: "POST",
+          data: {
+            id: $("#id").val(),
+            languageData: languageData,
+          },
+          success: (response) => {
+            toastNotification("success", "Language updated successfully. ");
+          },
+          error: (error) => {
+            toastNotification(
+              "danger",
+              JSON.parse(error?.responseText)?.message || "Error !!"
+            );
+          },
+        });
+      });
+    </script>

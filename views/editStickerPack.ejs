@@ -1,0 +1,123 @@
+ <%- include('./partials/header.ejs') %>
+
+<div class="right-bar">
+  <h2 class="custom-heading custom-card">Edit Sticker Pack</h2>
+  <div class="custom-card">
+    <div class="row custom-form-section">
+      <div class="col-lg-6 col-md-12">
+        <form class="form">
+          <% if(data){%>
+          <input type="hidden" id="id" name="id" value="<%=data._id%>" />
+          <div>
+            <div class="form-group">
+              <label for="name">Pack Name</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Enter reaction name"
+                id="name"
+                name="name"
+                value="<%= data.name %>"
+              />
+            </div>
+          </div>
+          <div>
+            <div class="form-group">
+              <label for="category">Category</label>
+              <select class="form-select form-control" id="category" name="category">
+                <% if(categories){%> <% for(let category of categories){ %>
+                <option value="<%=category._id %>" <% if(String(category._id) ==
+                    String(data.category._id)){ %> selected <%} %>
+                  > <%= category.name %>
+                </option>
+                <%} %> <%} %>
+              </select>
+              <small>Select Category of Pack</small>
+            </div>
+          </div>
+          <div>
+            <div class="form-group">
+              <label for="description">Pack Description </label>
+              <textarea
+                class="form-control"
+                placeholder="Enter Pack Description" id="description"
+                name="description"
+              >
+<%= data.description %></textarea
+              >
+            </div>
+          </div>
+          <div>
+            <div class="form-group">
+              <input type="hidden" value="" id="media" />
+              <label for="inputfile">Sticker photo </label>
+              <input
+                type="file"
+                class="form-control"
+                placeholder="Select reaction to upload"
+                id="inputfile"
+                name="file"
+                value=""
+                accept="image/*"
+              />
+              <ul class="upload-files-progress" id="uploadimages">
+                <li id="uploadimages_default">
+                  <div class="upload-files-progress-left">
+                    <img
+                      src="<%= data.url %>"
+                      alt="img upload"
+                      id="previewImg"
+                    />
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <button id="savefile" class="btn btn-primary">Save</button>
+          <a href="/sticker#sticker-pack" class="btn btn-info">Cancel</a>
+          <%} %>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('./partials/footer.ejs') %>
+
+<script src="/script/filemanager.js"></script>
+
+<script>
+
+  $("#savefile").click(async(e) => {
+    e.preventDefault();
+    $("#savefile").prop("disabled", true);
+    const response =
+      files &&
+      files[0] &&
+      $(".removefile").hide() &&
+      (await uploadFile(files[0], "sticker", files[0].id));
+    const data = {
+      id: $('input[name="id"]').val(),
+      name: $('input[name="name"]').val(),
+      category: $('select[name="category"]').val(),
+      description: $('textarea[name="description"]').val(),
+    };
+    response && response.data?._id && (data.media = response.data._id);
+    $.ajax({
+      url: "/edit-sticker-pack",
+      method: "POST",
+      data: data,
+      success: (response) => {
+        toastNotification("success", "Pack Updated Successfully");
+        timeoutRedirect("/sticker#sticker-pack");
+      },
+      error: (error) => {
+        toastNotification(
+          "danger",
+          JSON.parse(error?.responseText)?.message || "Error !!"
+        );
+        $("#savefile").prop("disabled", false);
+      },
+    });
+  });
+</script>

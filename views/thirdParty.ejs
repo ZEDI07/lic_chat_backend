@@ -1,0 +1,142 @@
+ <%- include('./partials/header.ejs') %>
+  <div class="right-bar">
+    <h2 class="custom-heading custom-card">Third Party Integration</h2>
+    <!-- <div class="custom-card">
+      <div class="row custom-form-section">
+        <div class="col-lg-6 col-md-12">
+          <div class="form">
+            <div class="form-group">
+              <label for="seletedLanguage">One Signal Configuration</label>
+            </div>
+            <div class="form-group">
+              <label id="name" for="appId">App ID</label>
+              <input type="text" class="form-control" placeholder="Enter app id" value="" id="appId" />
+            </div>
+            <div class="form-group">
+              <label id="name" for="appKey">App Key</label>
+              <input type="text" class="form-control" placeholder="Enter app key" value="" id="appKey" />
+            </div>
+            <div class="form-group">
+              <button id="push-config" class="btn btn-primary">Update</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> -->
+    <div class="custom-card">
+      <div class="row custom-form-section" id="agora">
+        <div class="col-lg-6 col-md-12">
+          <div class="form">
+            <div class="form-group">
+              <label for="seletedLanguage">Agora</label>
+            </div>
+            <div class="form-group">
+              <button disabled id="agora-config" class="btn btn-primary">Premium</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="loader">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </div>
+  </div>
+  <%- include('./partials/footer.ejs') %>
+
+    <script>
+      $(document).ready(() => settingConfig());
+
+      $("#push-config").click((e) => {
+        e.preventDefault();
+        const id = $("#appId").val();
+        const key = $("#appKey").val();
+        $.ajax({
+          method: "POST",
+          url: "/push-notification-setting",
+          data: {
+            oneSignal: {
+              id: id,
+              key: key,
+            },
+          },
+          success: (response) => {
+            toastNotification("success", response.message);
+            // settingConfig();
+          },
+          error: (error) => {
+            toastNotification("danger", error.responseJSON.message);
+          },
+        });
+      });
+
+      function updateAgoraConfig() {
+        // e.preventDefault();
+        const id = $("#agora-appid").val();
+        $.ajax({
+          method: "POST",
+          url: "/general-chat-setting",
+          data: {
+            agora: { id: id },
+          },
+          success: (response) => {
+            toastNotification("success", response.message);
+            $("#agora-appid").val(response.data.agora.id);
+          },
+          error: (error) => {
+            toastNotification("danger", error.responseJSON.message);
+          },
+        });
+      };
+
+      function settingConfig() {
+        // $.ajax({
+        //   type: "GET",
+        //   url: `/general-chat-setting-config?key=one_signal`,
+        //   success: (response) => {
+        //     handleServiceContent(response);
+        //   },
+        //   error: (error) => { },
+        // });
+        $(".loader").css("display", "block")
+        $.ajax({
+          type: "GET",
+          url: `/general-chat-setting-config?key=agora`,
+          success: (response) => {
+            // $("#agora-appid").val(response.data.agora.id);
+            if (response.data.enabled) {
+              $("#agora").html(
+                `<div class="col-lg-6 col-md-12">
+                  <div class="form">
+                    <div class="form-group">
+                      <label for="seletedLanguage">Agora</label>
+                    </div>
+                    <div class="form-group">
+                      <label id="name" for="agora-appid">App ID</label>
+                      <input type="text" class="form-control" placeholder="Enter App Id" value="${response.data?.agora?.id || ''}" id="agora-appid" />
+                    </div>
+                    <div class="form-group">
+                      <button id="agora-config" onclick="updateAgoraConfig()" class="btn btn-primary">Update</button>
+                    </div>
+                  </div>
+                </div>`
+              )
+            }
+            $(".loader").css("display", "none")
+          },
+          error: (error) => {
+            $(".loader").css("display", "none")
+          },
+        });
+      }
+
+      function handleServiceContent(response) {
+        if (response.success) {
+          const { id, key } = response.data.oneSignal;
+          $("#appId").val(id);
+          $("#appKey").val(key);
+        }
+      }
+    </script>

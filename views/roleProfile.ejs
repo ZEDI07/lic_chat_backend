@@ -1,0 +1,121 @@
+ <%- include('./partials/header.ejs') %>
+<script src="/script/dateConverter.js"></script>
+<div class="right-bar">
+  <h2 class="custom-heading custom-card">Role Profile</h2>
+  <div class="custom-card">
+    <% if(response && response.success) {%> <% const data = response.data %>
+
+    <div class="user-profile-deatils">
+      <div class="tab-content" id="pills-tabContent">
+        <div class="tab-pane fade show active" id="pills-home">
+          <div class="edit-profile-fields">
+            <div class="edit-profile-fields-heading">
+              <h3>Details</h3>
+              <a href="/role-edit?id=<%= data._id%>" class="edit-button"
+                >Edit</a
+              >
+            </div>
+            <div class="row custom-form">
+              <div class="col-md-6">
+                <ul class="commom_form_edit">
+                  <li>
+                    <span class="custom-form-title">Name</span>
+                    <span class="custom-form-desc"><%= data.name %></span>
+                  </li>
+                  <li>
+                    <span class="custom-form-title">Role ID</span>
+                    <span class="custom-form-desc"><%= data.roleId %></span>
+                  </li>
+                  <li>
+                    <span class="custom-form-title">Created</span>
+                    <span class="custom-form-desc"
+                      >dateConverter(data.createdAt)</span
+                    >
+                  </li>
+                </ul>
+              </div>
+              <div class="col-md-6">
+                <ul class="commom_form_edit">
+                  <li>
+                    <span class="custom-form-title">Description</span>
+                    <span class="custom-form-desc">
+                      <%= data.description %>
+                    </span>
+                  </li>
+                  <!-- <li>
+                    <span class="custom-form-title">Metadata</span>
+                    <span class="custom-form-desc"> None </span>
+                  </li> -->
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="edit-profile-fields">
+            <div class="edit-profile-fields-heading">
+              <h3>Permissions</h3>
+            </div>
+            <div class="warning-page">
+              <span>Warning</span>
+              <p>
+                These permissions are only enforced at the API level. Please
+                make relevant changes to your front-end to hide feature from the
+                user.
+              </p>
+            </div>
+            <ul class="custom-form custom-form-check">
+              <input type="hidden" id="roleId" value="<%= data._id%>" />
+              <% if(permissions && permissions.length){%>
+                <%for(let permission=0; permission<permissions.length; permission ++){ const permissionData = permissions[permission]%>
+                  <li>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="<%=permissionData.key%>"
+                      name="permission" onchange="permission(this.id)"
+                      <%=(data.permissions.some(ele=> ele.key == permissionData.key)) ?
+                      "checked" :"" %> />
+                      <div class="form-check-left">
+                        <label class="form-check-label" for="flexCheckDefault">
+                          <%=permissionData.name%>
+                        </label>
+                        <p>
+                          <%=permissionData.description || "for now empty"%>
+                        </p>
+                      </div>
+                    </div>
+                  </li>
+                <% }%>
+              <%}%>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <%}%>
+  </div>
+</div>
+<%- include('./partials/footer.ejs') %>
+
+<script>
+  function permission(key) {
+    const status = $(`#${key}`).is(":checked");
+    const roleId = $("#roleId").val();
+    updateRolePermission(roleId, key, status);
+  }
+
+  function updateRolePermission(id, key, status) {
+    $.ajax({
+      type: "POST",
+      url: `/update-role-permission`,
+      data: {
+        id,
+        permissionKey: key,
+        status: status,
+      },
+      success: (response) => {
+        toastNotification("success", "Permission updated Successfully");
+      },
+      error: (error) => {
+        toastNotification("danger", error.responseJSON.message);
+      },
+    });
+  }
+</script>

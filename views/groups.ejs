@@ -1,0 +1,37 @@
+ <%- include('./partials/header.ejs') %>
+  <script src="/script/dateConverter.js"></script>
+  <div class="right-bar">
+    <h2 class="custom-heading custom-card">Group</h2>
+    <div class="custom-card">
+      <% if(upgrade){%>
+        <div class="form-group">
+          <button disabled class="btn btn-primary">Premium</button>
+        </div>
+        <% } else { %>
+          <%- include("./partials/groupBody.ejs") %>
+            <% }%>
+    </div>
+  </div>
+
+  <%- include('./partials/footer.ejs') %>
+    <!-- Delete Modal -->
+    <div class="modal fade delete-modal" id="deleteModel" tabindex="-1" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="delete-content">
+            <img src="images/remove.png" alt="delete img" class="delete-img" />
+            <h3>Are you sure?</h3>
+            <p id="deleteConfirmatinMessage"></p>
+            <div class="delete-content-btn">
+              <button type="button" class="btn btn-danger" id="confirmDeleteGroup" onClick="">
+                Delete
+              </button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>

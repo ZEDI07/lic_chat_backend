@@ -1,0 +1,187 @@
+<div class="user-profile-deatils">
+  <div class="user-profile-deatils-inner">
+    <div class="section-header">
+      <a href="/group-add" class="add_import"><i class="fi fi-rs-plus"></i></a>
+      <div class="custom-form-section section-header-form">
+        <div class="section-header-form-item _search">
+          <i class="fi fi-rs-search"></i>
+          <input type="text" class="form-control" placeholder="Search" name="search" id="searchInput"
+            oninput="search()" />
+        </div>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-striped" id="groupTable"></table>
+      <div id="loader" class="loader-overlay">
+        <div class="loader">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<nav class="paginaton-section">
+  <ul class="pagination" id="pagination"></ul>
+</nav>
+
+
+<script>
+  $(document).ready(() => getDataTable(1));
+
+  let page = 1;
+  const pageSize = 10;
+
+  function search() {
+    return new Promise((res, rej) => {
+      let value = $("#searchInput").val();
+      const key = "name";
+      if (!value) {
+        getDataTable();
+        return;
+      }
+      $("#loader").css("display", "flex")
+      $.ajax({
+        type: "GET",
+        url: `/group-search?key=${key}&value=${value}&status=${1}&page=${page - 1
+          }&limit=${pageSize}`,
+        success: (response) => {
+          handleGroupList(response), res();
+          $("#loader").css("display", "none")
+        },
+        error: (error) => {
+          rej();
+          $("#loader").css("display", "none")
+        },
+      });
+    });
+  }
+
+  function getDataTable(pageno) {
+    $("#loader").css("display", "flex")
+    return new Promise((res, rej) => {
+      page = +pageno || page;
+      $.ajax({
+        type: "GET",
+        url: `/get-group-list?page=${page - 1
+          }&limit=${pageSize}&status=${true}`,
+        success: (response) => {
+          handleGroupList(response), res();
+          $("#loader").css("display", "none")
+        },
+        error: (error) => {
+          $("#loader").css("display", "none")
+        },
+      });
+    });
+  }
+
+  // Group Page Function >>>>>>
+  function getGroupTableContent(groups, pageno, pageSize) {
+    let tableContent = `<thead>
+          <tr>
+            <th>Sr.</th>
+            <th>Name</th>
+            <th>Group ID</th>
+            <th>Type</th>
+            <th class="text-center">Members</th>
+            <th>Created</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>`;
+    for (let group = 0; group < groups.length; group++) {
+      const data = groups[group];
+      const content = `<tr>
+    <td> ${(pageno - 1) * pageSize + (group + 1)} </td>
+    <td>
+        <img src=${data.avatar}
+            class="tabel-user-img">
+            <a href="/group-profile?id=${data._id
+        }" data-bs-toggle="tooltip" data-bs-placement="top"
+                data-bs-title="Edit"> ${data.name}</i></a>
+    </td>
+    <td class="group-id">${data._id}</td>
+    <td>${data.type == 0
+          ? "Private"
+          : data.type == 1
+            ? "Public"
+            : "Password Protected"
+        }</td>
+    <td class="text-center">${data.members} </td>
+    <td>${dateConverter(data.createdAt)}</td>
+    <td>
+        <div class="action-button">
+          ${`<a href="/group-profile?id=${data._id}" class="delete-btn"><i class="fi fi-rs-eye"></i><span class="tooltiptext">View</span></a>`} 
+        <a href="/group-edit?id=${data._id}" class="delete-btn" data-bs-toggle="tooltip" data-bs-placement="top"data-bs-title="Edit"> <i class="fi fi-rs-pencil"></i><span class="tooltiptext">Edit</span></a>
+        <a href="javascript:void(0)" class="delete-btn" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Delete"><i class="fi fi-rs-trash" onClick="deleteButton(this.id, '${data.name
+        }')" id="${data._id
+        }"></i><span class="tooltiptext">Delete</span></a>
+        </div>
+    </td>
+</tr>`;
+      tableContent += content;
+    }
+    tableContent += `</tbody>`;
+    return tableContent;
+  }
+
+  async function handleGroupList(response) {
+    if (response.success) {
+      if (page > 1 && response.data.count && !response.data.groups.length) {
+        page--;
+        await getDataTable(page);
+        return;
+      }
+      if (!response.data.count) {
+        const content = `<div class="alert alert-warning text-center" role="alert" style="margin:15px;">
+    No Groups found.
+    </div>`;
+        $("#groupTable").html(content);
+        $("#pagination").html("");
+        return;
+      }
+      const paginationContent = getPaginationContent(
+        response.data.count,
+        pageSize,
+        page
+      );
+      let tableContent = getGroupTableContent(
+        response.data.groups,
+        page,
+        pageSize
+      );
+      $("#groupTable").html(tableContent);
+      $("#pagination").html(paginationContent);
+    }
+  }
+
+  function deleteButton(id, name) {
+    $("#deleteConfirmatinMessage").html(
+      `You want to delete <B>${name}</B> group from your chat application? Once deleted, it will not be recoverable.`
+    );
+    $("#confirmDeleteGroup").attr("onClick", `deleteGroup('${id}')`);
+    $("#deleteModel").modal("show");
+  }
+
+  function deleteGroup(id) {
+    $("#deleteModel").modal("hide");
+    $.ajax({
+      url: "/delete-group",
+      method: "POST",
+      data: {
+        id: id,
+        status: false,
+      },
+      success: (response) => {
+        toastNotification("success", response.message);
+        getDataTable();
+      },
+      error: (error) => {
+        toastNotification("danger", error.responseJSON.message);
+      },
+    });
+  }
+</script>

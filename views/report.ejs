@@ -1,0 +1,375 @@
+ <%- include('./partials/header.ejs') %>
+  <script src="/script/dateConverter.js"></script>
+  <div class="right-bar">
+    <h2 class="custom-heading custom-card">Report</h2>
+
+    <select id="selectOption" class="form-select form-control" onchange="selectType(this.value)" style="width: 15%">
+      >
+      <option value="0">Select Report Type</option>
+      <option value="1">Message</option>
+      <option value="2">User</option>
+      <option value="3">Group</option>
+    </select>
+
+    <div class="custom-card">
+      <div class="user-profile-deatils">
+        <div class="tab-content user-profile-deatils-inner" id="pills-tabContent">
+          <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="#recent">
+            <div class="table-responsive">
+              <table class="table table-striped" id="live-table"></table>
+              <div id="loader" class="loader-overlay loader-main">
+                <div class="loader">
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="#history">
+            <div class="section-header">
+              <div class="custom-form-section section-header-form">
+                <input type="text" id="sender" class="form-control" placeholder="Sender" oninput="search()" />
+                <input type="text" id="receiver" class="form-control autocomplete" name="receiver"
+                  placeholder="Receiver" oninput="search()" />
+                <!-- <input type="text" id="date" class="form-control" name="daterange"
+                                    value="01/01/2022 - 01/12/2023" placeholder="01/01/2022-01/12/20203" />
+                                <button type="submit" onclick="filterSubmit()"><i class="fi fi-rs-search"></i></button> -->
+              </div>
+
+              <!-- <div class="section-header">
+
+        
+
+                            <div class="date-form">
+                                <a href="javascript:void(0)" class="add_import"><i class="fi fi-rs-calendar"></i></a>
+                            </div>
+                        </div> -->
+            </div>
+
+            <div class="table-responsive">
+              <table class="table table-striped" id="history-table"></table>
+              <div id="loader" class="loader-overlay loader-main">
+                <div class="loader">
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('./partials/footer.ejs') %>
+    <!-- Delete Modal -->
+    <div class="modal fade delete-modal" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="delete-content">
+            <img src="images/remove.png" alt="delete img" class="delete-img" />
+            <h3>Are you sure?</h3>
+            <p id="deleteConfirmationMessage">
+              Do you want really want do delete this data <br />
+              this file cannot be find
+            </p>
+            <div class="delete-content-btn">
+              <button type="button" id="confirmDeleteMessage" onclick="" class="btn btn-danger">
+                Delete
+              </button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- View Message Modal -->
+    <div class="modal fade delete-modal" id="viewMessageModal" tabindex="-1" aria-labelledby="viewMessageModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="delete-content">
+            <p id="viewMessageText"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Script for handling ajax to get chat -->
+
+    <!-- <script src="/socket.io/socket.io.js"></script>  -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+    <script>
+      let socket;
+      let recentLastMessage;
+      let historyLastMessage;
+      let ended = false;
+      let tab = 0;
+      let timer = 0;
+      let type;
+      let pageNo = 0;
+      let reportsData = [];
+      const selectType = (typeSelected) => {
+        type = typeSelected;
+        pageNo = 0;
+        reportsData = [];
+        getDataTable(0, typeSelected);
+      };
+      $(document).ready(() => {
+        // alert($('#isLive').is(":checked"))
+        getDataTable(0, type);
+      });
+      function search() {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          ended = false;
+          const sender = $("#sender").val();
+          const receiver = $("#receiver").val();
+          let url = `/message-list?`;
+          sender && (url = url.concat(`sender=${sender}&`));
+          receiver && (url = url.concat(`receiver=${receiver}`));
+          $(".loader-main").css("display", "flex")
+          $.ajax({
+            type: "GET",
+            url: url,
+            success: (response) => {
+              handleMessageList(response.data);
+              $(".loader-main").css("display", "none")
+            },
+            error: (error) => {
+              console.log(error);
+              $(".loader-main").css("display", "none")
+            },
+          });
+        }, 1000);
+      }
+
+      // jQuery(function () {
+      //     jQuery('input[name="daterange"]').daterangepicker({
+      //         opens: 'left'
+      //     }, function (start, end, label) {
+      //         alert("inside function")
+      //         console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+      //     });
+      // });
+      // TO Get list of messages.
+      function getDataTable(pageno, type) {
+        $(".loader-main").css("display", "flex")
+        return new Promise((res, rej) => {
+          $.ajax({
+            type: "GET",
+            url: `/get-report-list?page=${pageNo}&type=${type}`,
+            success: (response) => {
+              console.log(response.data);
+              !response.data && (reportsData = []);
+              handleMessageList(response.data);
+              res();
+              $(".loader-main").css("display", "none")
+            },
+            error: (error) => {
+              reportsData = [];
+              rej();
+              $(".loader-main").css("display", "none")
+            },
+          });
+        });
+      }
+
+      // // handling message list and pagination accroring to count
+      async function handleMessageList(data) {
+        reportsData = [...reportsData, ...data];
+        const nocontent = `
+                  <div class="alert alert-warning text-center" role="alert" style="margin:15px;">
+                      No Reports Found
+                  </div>`;
+        if (tab == 0) {
+          if (data.length) {
+            recentLastMessage = data[data.length - 1]._id;
+            $("#live-table").html(getTableContent(data));
+          } else {
+            $("#live-table").html(nocontent);
+          }
+        } else if (tab == 1) {
+          if (data.length) {
+            historyLastMessage = data[data.length - 1]._id;
+            $("#history-table").html(getTableContent(data));
+          } else {
+            $("#history-table").html(nocontent);
+          }
+        }
+      }
+
+      function getTableContent(messages) {
+        let tableContent = `<thead>
+                              <tr>
+                                  <th>User</th>
+                                  <th>Type</th>
+                                  <th>Report</th>
+                                  <th>Date</th>
+                              </tr>
+                              </thead>
+                            <tbody>`;
+        for (let data of messages) {
+          const content = tableRowContent(data);
+          tableContent += content;
+        }
+        tableContent += `</tbody>`;
+        return tableContent;
+      }
+      const getReportName = (reportType) => {
+        switch (reportType) {
+          case 1:
+            return "Message";
+          case 2:
+            return "User";
+          case 3:
+            return "Group";
+          default:
+            return "Unknown";
+        }
+      };
+
+      // const getReportData = (reportType, report) => {
+      //   switch (reportType) {
+      //     case 1: {
+      //       const data = report.type === media ? report.media : report.text;
+      //       return data;
+      //     }
+      //     default:
+      //       return report.name;
+      //   }
+      // };
+
+      const tableRowContent = (data) => {
+        return `
+      <tr id=${tab == 0 ? `message_${data._id}` : `hmessage_${data._id}`}>
+          <td>${data.users.name}</td>
+          <td>${getReportName(data.reportType)}</td>
+          <td>
+              <div class="action-button">
+                  <a href="javascript:void(0)" data-bs-toggle="modal" class="delete-btn" data-bs-target="#viewMessageModal" onClick="showMessageButton('${data._id
+          }')">
+                      ${data.report._id}
+                      <span class="tooltiptext">View Report Details</span>
+                  </a>
+              </div>
+          </td>
+          <td>${dateConverter(data.createdAt)}</td>
+      </tr>
+  `;
+      };
+
+      function showMessageButton(id) {
+        let data = reportsData.find((ele) => ele._id === id);
+        let popUpData = data.report;
+        let htmlContent = "<ul>";
+
+        popUpData.text && (htmlContent += `<li>${popUpData.text}</li>`);
+        htmlContent += popUpData.media
+          ? `<li><a href="${popUpData.media}" target="_blank">${popUpData.media}</a></li>`
+          : "";
+        popUpData.name && (htmlContent += `<li>${popUpData.name}</li>`);
+
+        htmlContent += "</ul>";
+        $("#viewMessageText").html(htmlContent);
+      }
+
+      function deleteMessage(messageId) {
+        $("#exampleModal").modal("hide");
+        return new Promise((res, rej) => {
+          $.ajax({
+            type: "DELETE",
+            url: `/${messageId}`,
+            success: (response) => {
+              console.log("message id ", messageId);
+              const id =
+                tab == 0 ? `#message_${messageId}` : `#hmessage_${messageId}`;
+              console.log("ID", id);
+              $(id).remove();
+              res();
+            },
+            error: (error) => {
+              rej();
+            },
+          });
+        });
+      }
+
+      addEventListener("scrollend", (e) => {
+        if (
+          $(document).height() == $(window).scrollTop() + $(window).height() &&
+          !ended
+        )
+          pageNo++;
+        fetchMessages(pageNo);
+      });
+
+      function fetchMessages(pageNo) {
+        let url = `/get-report-list?page=${pageNo}&type=${type}`;
+        $.ajax({
+          type: "GET",
+          url: url,
+          success: (response) => {
+            if (!response.data.length) {
+              const content = `
+                                  <div class="alert alert-warning text-center" role="alert" style="margin:15px;">
+                                      message ended.
+                                  </div>`;
+              const tableId =
+                tab == 0 ? "#live-table tbody" : "#history-table tbody";
+              reportsData.length === 0 && $(tableId).append(content);
+              ended = true;
+              return;
+            }
+            let tableContent = "";
+
+            reportsData = [...reportsData, ...response.data];
+            for (let data of response.data) {
+              const content = tableRowContent(data);
+              tableContent += content;
+            }
+            if (tab == 0) {
+              recentLastMessage = response.data[response.data.length - 1]._id;
+              $("#live-table tbody").append(tableContent);
+            } else if (tab == 1) {
+              historyLastMessage = response.data[response.data.length - 1]._id;
+              $("#history-table tbody").append(tableContent);
+            }
+          },
+          error: (error) => {
+            console.log(error);
+          },
+        });
+      }
+
+      function deleteButton(id, name) {
+        $("#deleteConfirmationMessage").html(
+          `Do you want really want do delete this message`
+        );
+        $("#confirmDeleteMessage").attr("onClick", `deleteMessage('${id}')`);
+        $("#exampleModal").modal("show");
+      }
+
+      function recentMessage() {
+        window.location.hash = "recent";
+        tab = 0;
+        getDataTable();
+        ended = false;
+      }
+
+      function historyMessage() {
+        window.location.hash = "history";
+        tab = 1;
+        getDataTable();
+        ended = false;
+      }
+    </script>

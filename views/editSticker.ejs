@@ -1,0 +1,116 @@
+ <%- include('./partials/header.ejs') %>
+
+<div class="right-bar">
+  <h2 class="custom-heading custom-card">Edit Sticker</h2>
+  <div class="custom-card">
+    <div class="row custom-form-section">
+      <div class="col-lg-6 col-md-12">
+        <form class="form">
+          <% if(data){%>
+          <input type="hidden" id="id" name="id" value="<%=data._id%>" />
+          <div>
+            <div class="form-group">
+              <label for="category">Select Categories</label>
+              <select
+                class="formmultiselect"
+                name="category"
+                id="category"
+                multiple="multiple"
+              >
+              <% if(categories){%> <% for(let category of categories){ %>
+                <option value="<%=category._id %>" <% if(data?.category?.some((ele)=> String(ele._id) == String(category._id))){ %> selected <%} %>
+                  > <%= category.name %> %>
+                </option>
+                <%} %> <%} %></select>
+            </div>
+          </div>
+          <div>
+            <div class="form-group">
+              <label for="pack">Sticker Pack</label>
+              <select class="form-select form-control" id="pack"  name="pack">
+                <% if(packs){%> <% for(let pack of packs){ %>
+                <option value="<%=pack._id %>" <% if(String(pack._id) ==
+                    String(data.pack._id)){ %> selected <%} %>
+                  > <%= pack.name %>
+                </option>
+                <%} %> <%} %>
+              </select>
+              <small>Select Category of Pack</small>
+            </div>
+          </div>
+          <div>
+            <div class="form-group">
+              <input type="hidden" value="" id="media" />
+              <label for="inputfile">Sticker photo </label>
+              <input
+                type="file"
+                class="form-control"
+                placeholder="Select reaction to upload"
+                id="inputfile"
+                name="file"
+                value=""
+                accept="image/*"
+              />
+              <ul class="upload-files-progress" id="uploadimages">
+                <li id="uploadimages_default">
+                  <div class="upload-files-progress-left">
+                    <img
+                      src="<%= data.url %>"
+                      alt="img upload"
+                      id="previewImg"
+                    />
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <button id="savefile" class="btn btn-primary">Save</button>
+          <a href="/sticker-pack-manage?id=<%=packId%>" class="btn btn-info">Cancel</a>
+          <%} %>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('./partials/footer.ejs') %>
+
+<script src="/script/filemanager.js"></script>
+
+<script>
+    $(document).ready(function () {
+    $(".formmultiselect").select2();
+  });
+
+  $("#savefile").click(async(e) => {
+    e.preventDefault();
+    $("#savefile").prop("disabled", true);
+    const response =
+      files &&
+      files[0] &&
+      $(".removefile").hide() &&
+      (await uploadFile(files[0], "sticker", files[0].id));
+    const data = {
+        id: $('input[name="id"]').val(),
+        pack : $('select[name="pack"]').val(),
+        category :  $('select[name="category"]').val(),
+    };
+    response && response.data?._id && (data.media = response.data._id);
+    $.ajax({
+      url: "/edit-sticker",
+      method: "POST",
+      data: data,
+      success: (response) => {
+        toastNotification("success", "Pack Updated Successfully");
+        timeoutRedirect("/sticker-pack-manage?id=<%=packId%>");
+      },
+      error: (error) => {
+        toastNotification(
+          "danger",
+          JSON.parse(error?.responseText)?.message || "Error !!"
+        );
+        $("#savefile").prop("disabled", false);
+      },
+    });
+  });
+</script>

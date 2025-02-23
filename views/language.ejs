@@ -1,0 +1,170 @@
+ <%- include('./partials/header.ejs') %>
+  <div class="right-bar">
+    <h2 class="custom-heading custom-card">Manage Language</h2>
+    <div class="custom-card">
+      <div class="user-profile-deatils">
+        <div class="user-profile-deatils-inner">
+          <div class="section-header">
+            <a href="/language-add" class="add_import"><i class="fi fi-rs-plus"></i></a>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-striped" id="groupTable"></table>
+            <div id="loader" class="loader-overlay loader-main">
+              <div class="loader">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav class="paginaton-section">
+        <ul class="pagination" id="pagination"></ul>
+      </nav>
+    </div>
+  </div>
+
+  <%- include('./partials/footer.ejs') %>
+    <!-- Delete Modal -->
+    <div class="modal fade delete-modal" id="deleteModel" tabindex="-1" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="delete-content">
+            <img src="images/remove.png" alt="delete img" class="delete-img" />
+            <h3>Are you sure?</h3>
+            <p id="deleteConfirmatinMessage"></p>
+            <div class="delete-content-btn">
+              <button type="button" class="btn btn-danger" id="confirmDeleteGroup" onClick="">
+                Delete
+              </button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      $(document).ready(() => getDataTable(1));
+
+      let page = 1;
+      const pageSize = 10;
+
+      function getDataTable(pageno) {
+        $(".loader-main").css("display", "flex")
+        return new Promise((res, rej) => {
+          page = +pageno || page;
+          $.ajax({
+            type: "GET",
+            url: `/get-languages`,
+            success: (response) => {
+              handleLanguageList(response), res();
+              $(".loader-main").css("display", "none")
+            },
+            error: (error) => {
+              rej();
+              $(".loader-main").css("display", "none")
+            },
+          });
+        });
+      }
+
+      // Group Page Function >>>>>>
+      function getBodyContent(languages) {
+        let tableContent = `<thead>
+              <tr>
+                <th>Sr.</th>
+                <th>Name</th>
+                <th>Key</th>
+                <th>default</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>`;
+        for (let language = 0; language < languages.length; language++) {
+          const data = languages[language];
+          const content = `<tr>
+        <td> ${language + 1} </td>
+        <td>${data.name}</td>
+        <td>${data.key}</td>
+        <td>
+            <input class="form-check-input" type="radio" id=${data._id
+            } name="default" value="" onclick="${!data.default ? "setDefault(this.id)" : ""
+            }"  ${data.default ? "checked" : ""} ${data.default ? "disabled" : ""} />
+        </td>
+        <td>
+            <div class="action-button">
+                <a href="/language-edit?id=${data._id
+            }" data-bs-toggle="tooltip" data-bs-placement="top"
+                    data-bs-title="Edit"> <i class="fi fi-rs-pencil"></i></a>
+                    <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Delete"><i class="fi fi-rs-trash" onClick="deleteButton(this.id, '${data.name
+            }')" id="${data._id}"></i></a>
+            </div>
+        </td>
+    </tr>`;
+          tableContent += content;
+        }
+        tableContent += `</tbody>`;
+        return tableContent;
+      }
+
+      async function handleLanguageList(response) {
+        if (!response.data.length) {
+          const content = `<div class="alert alert-warning text-center" role="alert" style="margin:15px;">
+        No language found.
+        </div>`;
+          $("#groupTable").html(content);
+          $("#pagination").html("");
+          return;
+        }
+
+        let tableContent = getBodyContent(response.data);
+        $("#groupTable").html(tableContent);
+      }
+
+      function deleteButton(id, name) {
+        $("#deleteConfirmatinMessage").html(
+          `You want to delete <B>${name}</B> Language from your chat application? Once deleted, it will not be recoverable.`
+        );
+        $("#confirmDeleteGroup").attr("onClick", `deleteLanguage('${id}')`);
+        $("#deleteModel").modal("show");
+      }
+
+      function deleteLanguage(id) {
+        $("#deleteModel").modal("hide");
+        $.ajax({
+          url: "/delete-language",
+          method: "POST",
+          data: {
+            id: id,
+          },
+          success: (response) => {
+            toastNotification("success", response.message);
+            getDataTable();
+          },
+          error: (error) => {
+            toastNotification("danger", error.responseJSON.message);
+          },
+        });
+      }
+
+      function setDefault(id) {
+        $.ajax({
+          method: "POST",
+          url: "/set-default-language",
+          data: { id: id },
+          success: (response) => {
+            toastNotification("success", response.message);
+            getDataTable();
+          },
+          error: (error) => {
+            toastNotification("danger", error.responseJSON.message);
+          },
+        });
+      }
+    </script>

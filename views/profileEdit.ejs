@@ -1,0 +1,88 @@
+ <%- include('./partials/header.ejs') %>
+    <div class="right-bar">
+        <h2 class="custom-heading custom-card">
+            Edit User
+        </h2>
+        <div class="custom-card">
+            <div class="custom-card-info">
+                <h4>Enter User Details</h4>
+            </div>
+            <div class="row custom-form-section">
+                <div class="col-lg-6 col-md-12">
+                    <% if(data){ %>
+                        <form class="form">
+                            <input name="id" type="hidden" value="<%=data._id %>">
+                            <div class="form-group">
+                                <label for="name">Name</label>
+                                <input name="name" type="text" id="name" class="form-control" placeholder="Name"
+                                    value="<%=data.name %>">
+                                <small>Displayed User Name</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="UID">UID</label>
+                                <input type="text" id="UID" class="form-control" placeholder="ID" value="<%=data.uid %>"
+                                    disabled>
+                                <small>Unique Identifier of the User.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="role">Role</label>
+                                <select class="form-select form-control" id="role" name="role">
+                                    <% for (let i = 0; i < data.rolesAvaliable?.length; i++) { %>
+                                        <option value="<%= parseInt(data.rolesAvaliable[i].roleId) %>" <% if (data.role == i) { %>selected<% } %>><%= data.rolesAvaliable[i].name %></option>
+                                    <% } %>
+                                </select>
+                                <small>Unique Identifier of the User.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="avatar">Avatar</label>
+                                <input name="avatar" id="avatar" type="text" class="form-control"
+                                    placeholder="https://example.com/avatar.png" value="<%=data.avatar %>">
+                                <small>Url to the profile picture.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="link">Link</label>
+                                <input name="link" id="link" type="text" class="form-control"
+                                    placeholder="https://example.com/user-profile" value="<%=data.link %>">
+                                <small>Url to the profile page.</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="metadata">Metadata</label>
+                                <textarea class="form-control" id="metadata" placeholder="Enter JSON data"
+                                    name="metadata"><%=data.metadata %></textarea>
+                                <small>Additional user data in JSON format</small>
+                            </div>
+                            <button type="submit" id="submitbutton" class="btn btn-primary">Save</button>
+                            <a href='/user-profile?id=<%=data._id%>' class="btn btn-info">Cancel</a>
+                        </form>
+                        <%}%>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% - include('./partials/footer.ejs') %>
+        <script>
+            $("#submitbutton").click((e) => {
+                e.preventDefault();
+                const data = {
+                    id: $('input[name="id"]').val(),
+                    name: $('input[name="name"]').val(),
+                    role: $('select[name="role"]').val(),
+                    avatar: $('input[name="avatar"]').val(),
+                    link: $('input[name="link"]').val(),
+                    metadata: $('textarea[name="metadata"]').val(),
+                }
+                $.ajax({
+                    url: `/user-profile-edit`,
+                    method: "POST",
+                    contentType:"application/json",
+                    data: JSON.stringify(data),
+                    success: (response) => {
+                        toastNotification("success", response.message);
+                        window.location.href =`/user-profile?id=${data.id}`
+                    },
+                    error: (error) => {
+                        toastNotification("danger", error.responseJSON.message);
+                    },
+                });
+            })
+        </script>

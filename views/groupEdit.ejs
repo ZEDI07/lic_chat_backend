@@ -1,0 +1,129 @@
+ <%- include('./partials/header.ejs') %>
+<div class="right-bar">
+  <h2 class="custom-heading custom-card">Edit Group</h2>
+  <div class="custom-card">
+    <div class="custom-card-info">
+      <h4>Enter Group Details</h4>
+    </div>
+    <div class="row custom-form-section">
+      <div class="col-lg-6 col-md-12">
+        <form class="form">
+          <% if(groupDetails && groupDetails.success) { %> <% const data =
+          groupDetails.data %>
+          <input type="hidden" name="id" value="<%=data._id %>" />
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Name"
+              id="name"
+              name="name"
+              value="<%=data.name %>"
+            />
+            <small>Displayed User Name</small>
+          </div>
+          <div class="form-group">
+            <label for="UID">UID</label>
+            <input
+              type="email"
+              class="form-control"
+              placeholder="ID"
+              id="UID"
+              value="<%=data._id %>"
+              disabled
+            />
+            <small>Unique Identifier of the User.</small>
+          </div>
+          <div class="form-group">
+            <label for="type">Type</label>
+            <select class="form-select form-control" id="type" name="type">
+              <% if(data.type >=0){%>
+                <option value="0" <% if(data.type==0){%>selected<%} %>>Private</option>
+                <option value="1" <% if(data.type==1){%>selected<%} %>>Public</option>
+                <option value="2" <% if(data.type==2){%>selected<%} %>>Passowrd Protected</option>
+                <%} else{%>
+                    <option selected>Default Role</option>
+                    <option value="0">Private</option>
+                    <option value="1">Public</option>
+                    <option value="2">Password Protected</option>
+                    <%} %>
+            </select>
+            <small>Unique Identifier of the User.</small>
+          </div>
+          <!-- <div class="form-group">
+            <label>Tags</label>
+            <input type="text" class="form-control" placeholder="Tags" />
+            <small>Tags for better search, separated by hash.</small>
+          </div> -->
+          <div class="form-group">
+            <label for="avatar">Avatar</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="https://example.com/avatar.png"
+              name="avatar"
+              id="avatar"
+              value="<%=data.avatar %>"
+            />
+            <small>Url to the profile picture.</small>
+          </div>
+          <div class="form-group">
+            <label for="link">Link</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="https://example.com/user-profile"
+              name="link"
+              id="link"
+              value="<%=data.link %>"
+            />
+            <small>Url to the profile page.</small>
+          </div>
+          <div class="form-group">
+            <label for="metadata">Metadata</label>
+            <textarea
+              class="form-control"
+              placeholder="Enter JSON data"
+              id="metadata"
+              name="metadata"
+            >
+            <%=data.metadata %>
+            </textarea>
+            <small>Additional user data in JSON format</small>
+          </div>
+          <button id="saveButton" class="btn btn-primary">Save</button>
+          <a href="/group-profile?id=<%=data._id%>" class="btn btn-info">Cancel</a>
+          <%}%>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<%- include('./partials/footer.ejs') %>
+
+<script>
+  $('#saveButton').click((e)=>{
+    e.preventDefault();
+    const data ={
+      id: $('input[name="id"]').val(),
+      name: $('input[name="name"]').val(),
+      type: $('select[name="type"]').val(),
+      avatar : $('input[name="avatar"]').val(),
+      link: $('input[name="link"]').val() || undefined,
+      metadata: $('textarea[name="metadata"]').val() || undefined
+    };
+    $.ajax({
+      url:"/group-edit",
+      method:"POST",
+      data:data,
+      success:(response)=>{
+        toastNotification("success", response.message);
+        window.location.href = `/group-profile?id=${data.id}`
+      },
+      error:(error)=>{
+        toastNotification("danger", error.responseJSON.message);
+      }
+    })
+  })
+</script>

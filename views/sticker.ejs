@@ -1,0 +1,371 @@
+ <%- include('./partials/header.ejs') %>
+  <div class="right-bar">
+    <h2 class="custom-heading custom-card">Manage Stickers</h2>
+    <div class="custom-card">
+      <div class="user-profile-deatils">
+        <ul class="nav nav-pills" id="pills-tab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="sticker-category" data-bs-toggle="pill" data-bs-target="#pills-home"
+              type="button" role="tab" aria-selected="true" onclick="getStickerCategory()">
+              Stickers Category
+            </button>
+          </li>
+          <li class="nav-item" id="tab2" role="presentation">
+            <button class="nav-link" id="sticker-pack" data-bs-toggle="pill" data-bs-target="#pills-profile"
+              type="button" role="tab" aria-selected="false" tabindex="-1" onclick="getStickerPack()">
+              Stickers Packs
+            </button>
+          </li>
+        </ul>
+        <div class="tab-content user-profile-deatils-inner" id="pills-tabContent">
+          <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="#sticker-category">
+            <div class="section-header">
+              <a href="/sticker-category-add" class="add_import"><i class="fi fi-rs-plus"></i></a>
+              <div class="custom-form-section section-header-form">
+                <div class="section-header-form-item _search">
+                  <i class="fi fi-rs-search"></i>
+                  <input type="text" class="form-control" placeholder="Search" name="search" id="searchInput"
+                    oninput="search()" />
+                </div>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-striped" id="categoryTable">
+                <thead>
+                  <tr>
+                    <th>Sr.</th>
+                    <th>User</th>
+                    <th>UID</th>
+                    <th class="text-center">Role ID</th>
+                    <th>Created</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+              <div id="loader" class="loader-overlay loader-main">
+                <div class="loader">
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="#sticker-pack">
+            <div class="section-header">
+              <a href="/sticker-pack-add" class="add_import"><i class="fi fi-rs-plus"></i></a>
+              <div class="custom-form-section section-header-form">
+                <div class="section-header-form-item _search">
+                  <i class="fi fi-rs-search"></i>
+                  <input type="text" class="form-control" placeholder="Search" name="search" id="packSearchInput"
+                    oninput="search()" />
+                </div>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-striped" id="packTable"></table>
+              <div id="loader" class="loader-overlay loader-main">
+                <div class="loader">
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                  <div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav class="paginaton-section">
+        <ul class="pagination" id="activePagination"></ul>
+      </nav>
+      <nav class="paginaton-section">
+        <ul class="pagination" id="inactivePagination"></ul>
+      </nav>
+    </div>
+  </div>
+
+  <%- include('./partials/footer.ejs') %>
+
+    <!-- Delete Modal -->
+    <div class="modal fade delete-modal" id="deleteModel" tabindex="-1" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="delete-content">
+            <img src="images/remove.png" alt="delete img" class="delete-img" />
+            <h3>Are you sure?</h3>
+            <p id="deleteConfirmationMessage"></p>
+            <div class="delete-content-btn">
+              <button type="button" class="btn btn-danger" id="confirmDeleteCategory" onclick="">
+                Delete
+              </button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ----------------------------------------------------------------------------->
+    <!-- Script for handling user list -->
+
+    <script>
+      $(document).ready(() => {
+        getDataTable();
+      });
+
+      let tab = 1;
+
+      // TO Get list of active user.
+      function getDataTable() {
+        let url;
+        if (tab == 1) {
+          url = "/get-stickers-category";
+        } else {
+          url = "/get-sticker-pack";
+        }
+        $(".loader-main").css("display", "flex")
+        return new Promise((res, rej) => {
+          $.ajax({
+            type: "GET",
+            url,
+            success: (response) => {
+              if (tab == 1) handleCategorytList(response);
+              else handlePackList(response.data);
+              res();
+              $(".loader-main").css("display", "none")
+            },
+            error: (error) => {
+              rej();
+              $(".loader-main").css("display", "none")
+            },
+          });
+        });
+      }
+
+      // handling user list and pagination accroring to count
+      async function handleCategorytList(data) {
+        if (data.success) {
+          let tableContent = getTableContent(data.data);
+          $("#categoryTable").html(tableContent);
+        }
+      }
+
+      function handlePackList(stickerPack) {
+        if (!stickerPack.length) {
+          const content = `
+      <tbody>
+        <tr>
+          <td>
+            <div class="alert alert-warning text-center" role="alert" style="margin:15px;">
+              No packs found.
+            </div>
+          </td>
+        </tr>
+      </tbody>`;
+          $("#packTable").html(content);
+          return;
+        }
+        let tableContent = `<thead>
+                  <tr>
+                    <th>Sr.</th>
+                    <th>Title</th>
+                    <th>Photo</th>
+                    <th>Category</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>`;
+        for (let pack = 0; pack < stickerPack.length; pack++) {
+          const data = stickerPack[pack];
+          const content = `<tr id=table_${data._id}>
+         <td>${pack + 1}</td> 
+         <td>${data.name}</td>
+         <td> 
+            <img src= ${data.url} alt="img_user" class="tabel-user-img">
+         </td>
+         <td>${data.category.name}</td>
+         <td> 
+            <div class="action-button"> 
+                <a href="/sticker-pack-edit?id=${data._id
+            }" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit"><i class="fi fi-rs-pencil"></i></a>
+                <a href="/sticker-pack-manage?id=${data._id
+            }" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit"><i class="fi fi-rs-plus"></i></a>
+                <a href="javascript:void(0)" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Delete">
+                    <i class="fi fi-rs-trash" onClick="deletePackButton(this.id, '${data.name
+            }')" id="${data._id}"></i>
+                </a>
+            </div> 
+         </td> 
+        </tr>`;
+          tableContent += content;
+        }
+        tableContent += `</tbody>`;
+        $("#packTable").html(tableContent);
+      }
+
+      function getTableContent(categories) {
+        if (!categories.length) {
+          const content = `
+      <tbody>
+        <tr>
+          <td>
+            <div class="alert alert-warning text-center" role="alert" style="margin:15px;">
+              No Categories found.
+            </div>
+          </td>
+        </tr>
+      </tbody>`;
+          return content;
+        }
+        let tableContent = `<thead>
+    <tr>
+      <th>Sr.</th>
+      <th>Title</th>
+      <th>Color</th>
+      <th>Photo</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>`;
+        for (let category = 0; category < categories.length; category++) {
+          const data = categories[category];
+          const content = `<tr id=table_${data._id}>
+         <td>${category + 1}</td> 
+         <td>${data.name}</td>
+         <td>
+          <span>
+          ${data.color}
+          </span>
+          </td>
+         <td> 
+            <img src= ${data.url} alt="img_user" class="tabel-user-img">
+         </td>
+         <td> 
+            <div class="action-button"> 
+                <a href="/sticker-category-edit?id=${data._id
+            }" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit"><i class="fi fi-rs-pencil"></i></a>
+
+                <a href="javascript:void(0)" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Delete">
+                    <i class="fi fi-rs-trash" onClick="deleteButton(this.id, '${data.name
+            }')" id="${data._id}"></i>
+                </a>
+            </div> 
+         </td> 
+        </tr>`;
+          tableContent += content;
+        }
+        tableContent += `</tbody>`;
+        return tableContent;
+      }
+
+      // Function to Change user status from User page.
+      function deleteStickerCategory(id, refreshFunction) {
+        $.ajax({
+          type: "POST",
+          url: "/delete-sticker-category",
+          data: { id: id },
+          success: (response) => {
+            toastNotification("success", "Category Deleted Successfully");
+            refreshFunction && refreshFunction();
+          },
+          error: (error) => {
+            toastNotification("danger", error.responseJSON.message);
+          },
+        });
+      }
+
+      // Function to Change user status from User page.
+      function deleteStickerPack(id, refreshFunction) {
+        $.ajax({
+          type: "POST",
+          url: "/delete-sticker-pack",
+          data: { id: id },
+          success: (response) => {
+            toastNotification("success", "Category Deleted Successfully");
+            refreshFunction && refreshFunction();
+          },
+          error: (error) => {
+            toastNotification("danger", error.responseJSON.message);
+          },
+        });
+      }
+
+      function deleteButton(id, name) {
+        $("#deleteConfirmationMessage").html(
+          `You want to delete <B>${name || "this user"
+          }</B> sticker category? Once deleted, data will not be recoverable.`
+        );
+        $("#confirmDeleteCategory").attr("onClick", `deleteCategory('${id}')`);
+        $("#deleteModel").modal("show");
+      }
+
+      function deleteCategory(id) {
+        $("#deleteModel").modal("hide");
+        deleteStickerCategory(id, getDataTable);
+      }
+
+      function deletePackButton(id, name) {
+        $("#deleteConfirmationMessage").html(
+          `You want to delete <B>${name || "this user"
+          }</B> sticker Pack? Once deleted, data will not be recoverable.`
+        );
+        $("#confirmDeleteCategory").attr("onClick", `deletePack('${id}')`);
+        $("#deleteModel").modal("show");
+      }
+
+      function deletePack(id) {
+        $("#deleteModel").modal("hide");
+        deleteStickerPack(id, getDataTable);
+      }
+
+      // To get list of Inactive User
+      function getStickerPack() {
+        window.location.hash = "sticker-pack";
+        tab = 2;
+        $("#categoryTable tbody").empty();
+        $("#activePagination").empty();
+        getDataTable();
+      }
+
+      function getStickerCategory() {
+        window.location.hash = "sticker-category";
+        tab = 1;
+        getDataTable();
+      }
+
+      function search() {
+        return new Promise((res, rej) => {
+          let value;
+          if (tab == 2) {
+            value = $("#packSearchInput").val();
+          } else if (tab == 1) value = $("#searchInput").val();
+          const key = "name";
+          if (!value) {
+            getDataTable();
+            return;
+          }
+          $(".loader-main").css("display", "flex")
+          $.ajax({
+            type: "GET",
+            url: `/search-sticker?key=${key}&value=${value}&tab=${tab}`,
+            success: (response) => {
+              if (tab == 1) handleCategorytList(response);
+              else handlePackList(response.data);
+              res();
+              $(".loader-main").css("display", "none")
+            },
+            error: (error) => {
+              rej();
+              $(".loader-main").css("display", "none")
+            },
+          });
+        });
+      }
+    </script>
